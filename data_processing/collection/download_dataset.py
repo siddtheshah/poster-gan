@@ -8,6 +8,12 @@ IMAGE_FOLDER = "/tmp/movie_poster_images"
 
 frame = pd.read_csv('MovieGenre.csv', encoding="ISO-8859-1")
 
+errors = []
+
 for movieId, url in zip(frame['imdbId'], frame['Poster']):
-    # print(os.path.join(IMAGE_FOLDER, str(movieId) + ".jpg"))
-    wget.download(url, os.path.join(IMAGE_FOLDER, str(movieId) + ".jpg"))
+    try:
+        wget.download(url, os.path.join(IMAGE_FOLDER, str(movieId) + ".jpg"))
+    except:
+        errors.append(movieId)
+
+print("Errors: ", errors)
