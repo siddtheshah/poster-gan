@@ -1,12 +1,13 @@
 #! /usr/bin/python
 
-import urllib.request
-import zipfile
+import pandas as pd
+import urllib
+import os
 
-DOWNLOAD_PATH = '/tmp/movie_lens_data.zip'
+IMAGE_FOLDER = "/tmp/movie_poster_images"
 
-url = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
-urllib.request.urlretrieve(url, DOWNLOAD_PATH)
+frame = pd.read_csv('MovieGenre.csv', encoding="ISO-8859-1")
 
-with zipfile.ZipFile(DOWNLOAD_PATH) as zip_ref:
-    zip_ref.extractall('/tmp/movie_lens_data')
+for movieId, url in zip(frame['imdbId'], frame['Poster']):
+    # print(os.path.join(IMAGE_FOLDER, str(movieId) + ".jpg"))
+    urllib.urlretrieve(url, os.path.join(IMAGE_FOLDER, str(movieId) + ".jpg"))
