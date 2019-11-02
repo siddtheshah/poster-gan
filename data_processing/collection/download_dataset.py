@@ -4,7 +4,7 @@ import pandas as pd
 import wget
 import os
 
-IMAGE_FOLDER = "/tmp/movie_poster_images"
+IMAGE_FOLDER = "movie_poster_images"
 
 frame = pd.read_csv('MovieGenre.csv', encoding="ISO-8859-1")
 
