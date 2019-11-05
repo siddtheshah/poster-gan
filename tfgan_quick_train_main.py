@@ -23,6 +23,9 @@ STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 500  # @param
 BATCHES_FOR_EVAL_METRICS = 10  # @param
 
+if not os.path.exists(RUN_DIR):
+    os.makedirs(RUN_DIR)
+
 # logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
 
 def input_fn(mode, params, shuffle_control=False):
@@ -123,21 +126,26 @@ while cur_step < MAX_TRAIN_STEPS:
     iterator = gan_estimator.predict(
         input_fn, hooks=[tf_v1.train.StopAtStepHook(num_steps=21)])
 
+
     try:
-        imgs = np.array([iterator.__next__() for _ in range(20)])
+        imgs = [iterator.__next__() for _ in range(20)]
     except StopIteration:
         pass
+    row1 = np.hstack(imgs[:5])
+    row2 = np.hstack(imgs[5:10])
+    row3 = np.hstack(imgs[10:15])
+    row4 = np.hstack(imgs[15:])
+    all = np.vstack((row1, row2, row3, row4))
 
-    tiled = tfgan.eval.python_image_grid(imgs, grid_shape=(2, 10))
-    im = Image.fromarray(tiled)
-    im.save(os.path.join(RUN_DIR, "iter" + cur_step + ".png"))
+    plt.imshow(all)
+    plt.savefig(os.path.join(RUN_DIR, "iter" + str(cur_step) + ".png"))
 
 
 #TODO: Print figures in run, and save them to files.
-plt.title('MNIST Frechet distance per step')
-plt.plot(steps, frechet_distances)
-plt.figure()
-plt.title('MNIST Score per step')
-plt.plot(steps, mnist_scores)
-plt.plot(steps, real_mnist_scores)
-plt.show()
+# plt.title('MNIST Frechet distance per step')
+# plt.plot(steps, frechet_distances)
+# plt.figure()
+# plt.title('MNIST Score per step')
+# plt.plot(steps, mnist_scores)
+# plt.plot(steps, real_mnist_scores)
+# plt.show()
