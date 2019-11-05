@@ -1,6 +1,7 @@
-import tensorflow as tf
+from tfgan_quick_train_lib import *
+import tensorflow.compat.v1 as tf_v1
+import tensorflow.compat.v2 as tf_v2
 import tensorflow_gan as tfgan
-import tensorflow_datasets as tfds
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
@@ -10,18 +11,68 @@ import time
 
 #TODO: set up argparsing.
 
-RESULTS_PATH = "results"
+# Fully qualify this path when on cloud, because our data will be on disk
+IMAGE_DIR = "data/movie_poster_images"
+
+RESULTS_DIR = "results"
 RUN_NAME = "first"
+
+RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 500  # @param
 BATCHES_FOR_EVAL_METRICS = 10  # @param
 
-RUN_FOLDER = os.path.join(os.getcwd(), RESULTS_PATH, RUN_NAME)
+# logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
 
-logging.basicConfig(filename=os.path.join(RUN_FOLDER, "log.txt"), level=logging.DEBUG)
+def input_fn(mode, params, shuffle_control=False):
+    assert 'batch_size' in params
+    assert 'noise_dims' in params
+    bs = params['batch_size']
+    nd = params['noise_dims']
+    split = 'train' if mode == tf_v1.estimator.ModeKeys.TRAIN else 'test'
+    shuffle = shuffle_control and (mode == tf_v1.estimator.ModeKeys.TRAIN)
+    just_noise = (mode == tf_v1.estimator.ModeKeys.PREDICT)
 
-from tfgan_quick_train_lib import *
+    noise_ds = (tf_v1.data.Dataset.from_tensors(0).repeat()
+                .map(lambda _: tf_v1.random_normal([bs, nd])))
+
+    if just_noise:
+        return noise_ds
+
+    image_names = [os.path.join(IMAGE_DIR, f) for f in os.listdir(IMAGE_DIR) if os.path.isfile(os.path.join(IMAGE_DIR, f))]
+    dataset = tf_v1.data.Dataset.from_tensor_slices((image_names))
+
+    def _add_images(filename):
+        image_string = tf_v1.read_file(filename)
+        image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
+        image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
+        image_decoded = tf_v2.expand_dims(image_decoded, 0)
+        image = tf_v1.cast(image_decoded, tf_v1.float32)
+
+        print("Input image shape:", image.get_shape(), flush=True)
+
+        # Avg pooling image to reduce resolution.
+        # 4x4 kernel
+        image = tf_v1.nn.pool(image, window_shape=[4, 4], strides=[4, 4], pooling_type="AVG", padding='SAME')
+
+        # 64 x 64 image with 3 channels
+        image = tf_v1.reshape(image, [64,64,3])
+        print("Input image shape:", image.get_shape(), flush=True)
+        image = (image - 127.5) / 127.5
+        arr = tf_v1.cast(image, tf_v1.float32)
+        return arr
+
+    images_ds = dataset.map(_add_images).cache().repeat()
+    if shuffle:
+        images_ds = images_ds.shuffle(
+            buffer_size=10000, reshuffle_each_iteration=True)
+    images_ds = (images_ds.batch(bs, drop_remainder=True)
+                 .prefetch(tf_v1.data.experimental.AUTOTUNE))
+
+    return tf_v1.data.Dataset.zip((noise_ds, images_ds))
+
+print("Creating estimator")
 
 gan_estimator = tfgan.estimator.GANEstimator(
     generator_fn=unconditional_generator,
@@ -30,9 +81,10 @@ gan_estimator = tfgan.estimator.GANEstimator(
     discriminator_loss_fn=tfgan.losses.wasserstein_discriminator_loss,
     params={'batch_size': train_batch_size, 'noise_dims': noise_dimensions},
     generator_optimizer=gen_opt,
-    discriminator_optimizer=tf.train.AdamOptimizer(discriminator_lr, 0.5),
+    discriminator_optimizer=tf_v1.train.AdamOptimizer(discriminator_lr, 0.5),
     get_eval_metric_ops_fn=get_eval_metric_ops_fn)
 
+print("Done creating estimator", flush=True)
 
 # Used to track metrics.
 steps = []
@@ -45,15 +97,18 @@ while cur_step < MAX_TRAIN_STEPS:
     next_step = min(cur_step + STEPS_PER_EVAL, MAX_TRAIN_STEPS)
 
     start = time.time()
+    print("Training instance")
     gan_estimator.train(input_fn, max_steps=next_step)
+    print("Done training on instance")
     steps_taken = next_step - cur_step
     time_taken = time.time() - start
     print('Time since start: %.2f min' % ((time.time() - start_time) / 60.0))
     print('Trained from step %i to %i in %.2f steps / sec' % (
-        cur_step, next_step, steps_taken / time_taken))
+        cur_step, next_step, steps_taken / (time_taken + 1e-10)))
     cur_step = next_step
 
     # Calculate some metrics.
+
     metrics = gan_estimator.evaluate(input_fn, steps=BATCHES_FOR_EVAL_METRICS)
     steps.append(cur_step)
     real_logits.append(metrics['real_data_logits'])
@@ -61,12 +116,12 @@ while cur_step < MAX_TRAIN_STEPS:
 
     print('Average discriminator output on Real: %.2f  Fake: %.2f' % (
         real_logits[-1], fake_logits[-1]))
-    print('Inception Score: %.2f / %.2f  Frechet Distance: %.2f' % (
-        mnist_scores[-1], real_mnist_scores[-1], frechet_distances[-1]))
+    # print('Inception Score: %.2f / %.2f  Frechet Distance: %.2f' % (
+    #     mnist_scores[-1], real_mnist_scores[-1], frechet_distances[-1]))
 
     # Visualize some images.
     iterator = gan_estimator.predict(
-        input_fn, hooks=[tf.train.StopAtStepHook(num_steps=21)])
+        input_fn, hooks=[tf_v1.train.StopAtStepHook(num_steps=21)])
 
     try:
         imgs = np.array([iterator.__next__() for _ in range(20)])
@@ -75,7 +130,7 @@ while cur_step < MAX_TRAIN_STEPS:
 
     tiled = tfgan.eval.python_image_grid(imgs, grid_shape=(2, 10))
     im = Image.fromarray(tiled)
-    im.save(os.path.join(RUN_FOLDER, "iter" + cur_step + ".png"))
+    im.save(os.path.join(RUN_DIR, "iter" + cur_step + ".png"))
 
 
 #TODO: Print figures in run, and save them to files.

@@ -7,4 +7,4 @@ appropriate poser.
 
 Run the following:
 
-```python3 data_processing/collection/download_dataset.py```
+```python3 data/download_dataset.py```
