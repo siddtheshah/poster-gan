@@ -5,7 +5,7 @@ import wget
 import os
 from PIL import Image
 
-IMAGE_FOLDER = "movie_poster_images"
+IMAGE_FOLDER = "/mnt/disks/extra_space/movie_poster_images"
 if not os.path.exists(IMAGE_FOLDER):
     os.makedirs(IMAGE_FOLDER)
 
