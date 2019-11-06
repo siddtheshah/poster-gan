@@ -7,4 +7,7 @@ appropriate poser.
 
 Run the following:
 
-```python3 data/download_dataset.py```
+```
+cd data
+python3 download_dataset.py
+```

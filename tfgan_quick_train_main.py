@@ -26,7 +26,7 @@ BATCHES_FOR_EVAL_METRICS = 10  # @param
 if not os.path.exists(RUN_DIR):
     os.makedirs(RUN_DIR)
 
-# logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
+logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
 
 def input_fn(mode, params, shuffle_control=False):
     assert 'batch_size' in params
