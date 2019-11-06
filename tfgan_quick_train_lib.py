@@ -1,4 +1,5 @@
 import tensorflow.compat.v1 as tf_v1
+import cv2
 
 # Allow matplotlib images to render immediately.
 tf_v1.logging.set_verbosity(tf_v1.logging.ERROR)  # Disable noisy outputs.
@@ -62,6 +63,10 @@ def unconditional_generator(noise, mode=True, weight_decay=2.5e-5):
     # Flatten into 3 channel image
     net = _deconv2d(net, 3, 4.0, 2)
     net = tf_v1.tanh(net)
+
+    net = cv2.normalize(net, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
+    net.astype(np.uint8)
+
     print("Generator shape", net.shape)
     print("Generator created")
     return net
