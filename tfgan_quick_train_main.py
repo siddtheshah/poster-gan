@@ -18,6 +18,7 @@ RESULTS_DIR = "results"
 RUN_NAME = "first"
 
 RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
+MODEL_DIR = os.path.join("model", RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 5000  # @param
@@ -25,6 +26,8 @@ BATCHES_FOR_EVAL_METRICS = 10  # @param
 
 if not os.path.exists(RUN_DIR):
     os.makedirs(RUN_DIR)
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
 
 logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
 
@@ -80,6 +83,7 @@ def input_fn(mode, params, shuffle_control=False):
 print("Creating estimator")
 
 gan_estimator = tfgan.estimator.GANEstimator(
+    model_dir=MODEL_DIR,
     generator_fn=unconditional_generator,
     discriminator_fn=unconditional_discriminator,
     generator_loss_fn=tfgan.losses.wasserstein_generator_loss,

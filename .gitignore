@@ -5,3 +5,4 @@ data_processing/movie_poster_images
 data/movie_poster_images
 datasets
 results
+__pycache__
