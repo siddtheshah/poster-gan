@@ -12,7 +12,7 @@ import time
 #TODO: set up argparsing.
 
 # Fully qualify this path when on cloud, because our data will be on disk
-IMAGE_DIR = "data/movie_poster_images"
+IMAGE_DIR = "/mnt/disks/new_space/movie_poster_images"
 
 RESULTS_DIR = "results"
 RUN_NAME = "first"
@@ -20,7 +20,7 @@ RUN_NAME = "first"
 RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
-MAX_TRAIN_STEPS = 500  # @param
+MAX_TRAIN_STEPS = 5000  # @param
 BATCHES_FOR_EVAL_METRICS = 10  # @param
 
 if not os.path.exists(RUN_DIR):
