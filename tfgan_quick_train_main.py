@@ -57,7 +57,9 @@ def input_fn(mode, params, shuffle_control=False):
 
         # Avg pooling image to reduce resolution.
         # 4x4 kernel
-        image = tf_v1.nn.pool(image, window_shape=[4, 4], strides=[4, 4], pooling_type="AVG", padding='SAME')
+
+        # image = tf_v1.image.pool(image, window_shape=[4, 4], strides=[4, 4], pooling_type="AVG", padding='SAME')
+        image = tf_v1.image.resize(image, [64, 64])
 
         # 64 x 64 image with 3 channels
         image = tf_v1.reshape(image, [64,64,3])
