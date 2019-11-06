@@ -14,11 +14,11 @@ import time
 # Fully qualify this path when on cloud, because our data will be on disk
 IMAGE_DIR = "/mnt/disks/new_space/movie_poster_images"
 
-RESULTS_DIR = "results"
+RESULTS_DIR = "/mnt/disks/new_space/results"
 RUN_NAME = "first"
 
 RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
-MODEL_DIR = os.path.join("model", RUN_NAME)
+MODEL_DIR = os.path.join("/mnt/disks/new_space/model", RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 5000  # @param
@@ -28,6 +28,8 @@ if not os.path.exists(RUN_DIR):
     os.makedirs(RUN_DIR)
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
+if not os.path.exists(RESULTS_DIR):
+    os.makedirs(RESULTS_DIR)
 
 logging.basicConfig(filename=os.path.join(RUN_DIR, "log.txt"), level=logging.DEBUG)
 
