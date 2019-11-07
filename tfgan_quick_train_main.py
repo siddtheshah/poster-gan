@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import logging
 import os
-from PIL import Image
 import time
 
 #TODO: set up argparsing.
@@ -15,7 +14,7 @@ import time
 IMAGE_DIR = "/mnt/disks/new_space/movie_poster_images"
 
 RESULTS_DIR = "/mnt/disks/new_space/results"
-RUN_NAME = "first"
+RUN_NAME = "11_6_2019_1"
 
 RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
 MODEL_DIR = os.path.join("/mnt/disks/new_space/model", RUN_NAME)
@@ -143,9 +142,9 @@ while cur_step < MAX_TRAIN_STEPS:
     row2 = np.hstack(imgs[5:10])
     row3 = np.hstack(imgs[10:15])
     row4 = np.hstack(imgs[15:])
-    all = np.vstack((row1, row2, row3, row4))
-
-    plt.imshow(all)
+    all_images = np.vstack((row1, row2, row3, row4))
+    all_images = all_images.astype(np.uint8)
+    plt.imshow(all_images)
     plt.savefig(os.path.join(RUN_DIR, "iter" + str(cur_step) + ".png"))
 
 
