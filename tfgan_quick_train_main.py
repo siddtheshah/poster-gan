@@ -6,19 +6,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import logging
 import os
-from PIL import Image
 import time
 
 #TODO: set up argparsing.
 
+RUN_NAME="11_10_2019_1"
+
 # Fully qualify these paths when on cloud, because our data will be on disk
-IMAGE_DIR = "data/movie_poster_images"
 
-RESULTS_DIR = "results"
-RUN_NAME = "first"
 
-RUN_DIR = os.path.join(os.getcwd(), RESULTS_DIR, RUN_NAME)
-MODEL_DIR = os.path.join("model", RUN_NAME)
+IMAGE_DIR = "/mnt/disks/new_space/movie_poster_images"
+RUN_DIR = os.path.join("/mnt/disks/new_space/results", RUN_NAME)
+MODEL_DIR = os.path.join("/mnt/disks/new_space/model", RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 500  # @param
@@ -61,7 +60,7 @@ def input_fn(mode, params, shuffle_control=False):
         # Avg pooling image to reduce resolution.
         # 4x4 kernel
 
-        # image = tf_v1.image.pool(image, window_shape=[4, 4], strides=[4, 4], pooling_type="AVG", padding='SAME')
+        # image = tf_v1.image.pool(image, window_shape=[4, 4], strides=[4, 4], pooling_type="AVG", padding='SAM
         image = tf_v1.image.resize(image, [64, 64])
 
         # 64 x 64 image with 3 channels
@@ -122,6 +121,8 @@ while cur_step < MAX_TRAIN_STEPS:
     steps.append(cur_step)
     real_logits.append(metrics['real_data_logits'])
     fake_logits.append(metrics['gen_data_logits'])
+    real_id.append(metrics['real_data_id'])
+    fake_id.append(metrics['fake_data_id'])
 
     print('Average discriminator output on Real: %.2f  Fake: %.2f' % (
         real_logits[-1], fake_logits[-1]))
@@ -141,17 +142,13 @@ while cur_step < MAX_TRAIN_STEPS:
     row2 = np.hstack(imgs[5:10])
     row3 = np.hstack(imgs[10:15])
     row4 = np.hstack(imgs[15:])
-    all = np.vstack((row1, row2, row3, row4))
-
-    plt.imshow(all)
+    all_images = np.vstack((row1, row2, row3, row4))
+    all_images = (all_images + 1.0)*127.5
+    plt.imshow(all_images)
     plt.savefig(os.path.join(RUN_DIR, "iter" + str(cur_step) + ".png"))
 
-
-#TODO: Print figures in run, and save them to files.
-# plt.title('MNIST Frechet distance per step')
-# plt.plot(steps, frechet_distances)
-# plt.figure()
-# plt.title('MNIST Score per step')
-# plt.plot(steps, mnist_scores)
-# plt.plot(steps, real_mnist_scores)
-# plt.show()
+    plt.figure()
+    plt.title('Training plot')
+    plt.plot(steps, real_data_id)
+    plt.plot(steps, fake_data_id)
+    plt.savefig(os.path.join(RUN_DIR, "training_plot.png"))
