@@ -121,8 +121,8 @@ while cur_step < MAX_TRAIN_STEPS:
     steps.append(cur_step)
     real_logits.append(metrics['real_data_logits'])
     fake_logits.append(metrics['gen_data_logits'])
-    real_id.append(metrics['real_data_id'])
-    fake_id.append(metrics['fake_data_id'])
+    # real_id.append(metrics['real_data_id'])
+    # fake_id.append(metrics['fake_data_id'])
 
     print('Average discriminator output on Real: %.2f  Fake: %.2f' % (
         real_logits[-1], fake_logits[-1]))
@@ -149,6 +149,6 @@ while cur_step < MAX_TRAIN_STEPS:
 
     plt.figure()
     plt.title('Training plot')
-    plt.plot(steps, real_data_id)
-    plt.plot(steps, fake_data_id)
+    plt.plot(steps, real_logits)
+    plt.plot(steps, fake_logits)
     plt.savefig(os.path.join(RUN_DIR, "training_plot.png"))

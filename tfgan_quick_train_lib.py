@@ -112,8 +112,8 @@ def get_eval_metric_ops_fn(gan_model):
   return {
       'real_data_logits': tf_v1.metrics.mean(real_data_logits),
       'gen_data_logits': tf_v1.metrics.mean(gen_data_logits),
-      'real_data_id': tf_v1.count_nonzero(tf.greater(gan_model.discriminator_real_outputs, 0)),
-      'gen_data_id': tf_v1.count_nonzero(tf.greater(gan_model.discriminator_gen_outputs, 0)),
+      # 'real_data_id': tf_v1.keras.metrics.Accuracy(),
+      # 'gen_data_id': tf_v1.count_nonzero(gan_model.discriminator_gen_outputs),
   }
 
 def gen_opt():
