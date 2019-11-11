@@ -148,6 +148,7 @@ while cur_step < MAX_TRAIN_STEPS:
     row4 = np.hstack(imgs[15:])
     all_images = np.vstack((row1, row2, row3, row4))
     all_images = (all_images + 1.0)*127.5
+    plt.figure()
     plt.imshow(all_images)
     plt.savefig(os.path.join(RUN_DIR, "iter" + str(cur_step) + ".png"))
 

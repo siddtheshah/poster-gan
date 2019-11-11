@@ -17,6 +17,6 @@ Edit the tfgan_quick_train_lib.py file to set the RUN_NAME. Depending on where y
 info, change the paths for MODEL_DIR, RESULTS_DIR, etc.
 
 ```
-python tfgan_quick_train_main.py
+python tfgan_quick_train_main.py --run_name=<run_name>
 ```
 
