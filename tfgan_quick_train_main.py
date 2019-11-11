@@ -153,9 +153,11 @@ while cur_step < MAX_TRAIN_STEPS:
     plt.figure()
     plt.imshow(all_images)
     plt.savefig(os.path.join(RUN_DIR, "iter" + str(cur_step) + ".png"))
+    plt.close()
 
     plt.figure()
     plt.title('Training plot')
     plt.plot(steps, real_logits)
     plt.plot(steps, fake_logits)
     plt.savefig(os.path.join(RUN_DIR, "training_plot.png"))
+    plt.close()

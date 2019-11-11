@@ -87,10 +87,18 @@ def unconditional_discriminator(img, unused_conditioning, mode, weight_decay=2.5
     print("Discriminator image shape: ", img.shape)
 
     # Decompose into 256 channels, then 128 channels.
-    net = _conv2d(img, 256, 4, 2, weight_decay)
+    for i in range(3):
+        net = _conv2d(net, 128, 3, 1, weight_decay)
+        net = _leaky_relu(net)
+    net = _conv2d(img, 128, 3, 2, weight_decay)
+    net = _batch_norm(net, is_training)
     net = _leaky_relu(net)
 
-    net = _conv2d(net, 128, 4, 2, weight_decay)
+    for i in range(3):
+        net = _conv2d(net, 128, 5, 1, weight_decay)
+        net = _leaky_relu(net)
+    net = _conv2d(net, 128, 5, 2, weight_decay)
+    net = _batch_norm(net, is_training)
     net = _leaky_relu(net)
 
     net = tf_v1.layers.flatten(net)
