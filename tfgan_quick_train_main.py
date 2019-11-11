@@ -10,8 +10,8 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('--storage_dir', default='/mnt/', action='store')
-parser.add_argument('--image_dir', default='/mnt/movie_poster_images', action='store')
+parser.add_argument('--storage_dir', default='/mnt/', action='store', help='Specify path of results and model data')
+parser.add_argument('--image_dir', default='/mnt/movie_poster_images', action='store', help='Specify image data path')
 parser.add_argument('--run_name', help='Specify a run name', action='store')
 parser.add_argument('--steps_per_eval', default=50, action='store')
 parser.add_argument('--train_steps', default=500, action='store')
@@ -25,9 +25,9 @@ STORAGE_DIR = args.storage_dir
 RUN_DIR = os.path.join(STORAGE_DIR, 'results', RUN_NAME)
 MODEL_DIR = os.path.join(STORAGE_DIR, 'model', RUN_NAME)
 
-STEPS_PER_EVAL = args.steps_per_eval
-MAX_TRAIN_STEPS = args.train_steps
-BATCHES_FOR_EVAL_METRICS = args.eval_batches
+STEPS_PER_EVAL = int(args.steps_per_eval)
+MAX_TRAIN_STEPS = int(args.train_steps)
+BATCHES_FOR_EVAL_METRICS = int(args.eval_batches)
 
 if not os.path.exists(RUN_DIR):
     os.makedirs(RUN_DIR)

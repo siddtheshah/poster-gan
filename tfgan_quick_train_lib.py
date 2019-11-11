@@ -6,7 +6,7 @@ tf_v1.logging.set_verbosity(tf_v1.logging.ERROR)  # Disable noisy outputs.
 train_batch_size = 32 #@param
 noise_dimensions = 64 #@param
 generator_lr = 0.001 #@param
-discriminator_lr = 0.0002 #@param
+discriminator_lr = 0.001 #@param
 
 def _dense(inputs, units, l2_weight):
   return tf_v1.layers.dense(
@@ -56,19 +56,19 @@ def unconditional_generator(noise, mode=True, weight_decay=2.5e-5):
     net = tf_v1.reshape(net, [-1, 8, 8, 256])
 
     # Expanding into 128 and then 256 channels
-    for i in range(8):
+    for i in range(6):
         net = _deconv2d(net, 128, 3, 1, weight_decay)
-        net = tf_v1.tanh(net)
+        net = _leaky_relu(net)
     net = _deconv2d(net, 128, 3, 2, weight_decay)
     net = _batch_norm(net, is_training)
-    net = tf_v1.tanh(net)
+    net = _leaky_relu(net)
 
-    for i in range(8):
+    for i in range(6):
         net = _deconv2d(net, 128, 5, 1, weight_decay)
-        net = tf_v1.tanh(net)
-    net = _deconv2d(net, 256, 5, 2, weight_decay)
+        net = _leaky_relu(net)
+    net = _deconv2d(net, 128, 5, 2, weight_decay)
     net = _batch_norm(net, is_training)
-    net = tf_v1.tanh(net)
+    net = _leaky_relu(net)
     # Make sure that generator output is in the same range as `inputs`
     # ie [-1, 1].
 
