@@ -7,17 +7,21 @@ import numpy as np
 import logging
 import os
 import time
+import argparse
 
-#TODO: set up argparsing.
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('--storage_dir', default='/mnt/', action='store')
+parser.add_argument('--image_dir', default='/mnt/movie_poster_images', action='store')
+parser.add_argument('--run_name', help='Specify a run name', action='store')
 
-RUN_NAME="11_10_2019_1"
+args = parser.parse_args()
 
-# Fully qualify these paths when on cloud, because our data will be on disk
+RUN_NAME = args.run_name
+IMAGE_DIR = args.image_dir
+STORAGE_DIR = args.storage_dir
 
-
-IMAGE_DIR = "/mnt/disks/new_space/movie_poster_images"
-RUN_DIR = os.path.join("/mnt/disks/new_space/results", RUN_NAME)
-MODEL_DIR = os.path.join("/mnt/disks/new_space/model", RUN_NAME)
+RUN_DIR = os.path.join(STORAGE_DIR, 'results', RUN_NAME)
+MODEL_DIR = os.path.join(STORAGE_DIR, 'model', RUN_NAME)
 
 STEPS_PER_EVAL = 50  # @param
 MAX_TRAIN_STEPS = 500  # @param
