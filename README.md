@@ -15,6 +15,7 @@ python3 download_dataset.py
 ## Running the training script
 
 ```
+python tfgan_quick_train_main.py --help      # to list all arguments
 python tfgan_quick_train_main.py --run_name=<run_name>
 ```
 
