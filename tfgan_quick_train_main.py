@@ -13,10 +13,12 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--storage_dir', default='/mnt/', action='store', help='Specify path of results and model data')
 parser.add_argument('--image_dir', default='/mnt/movie_poster_images', action='store', help='Specify image data path')
 parser.add_argument('--run_name', help='Specify a run name', action='store')
-parser.add_argument('--steps_per_eval', default=50, action='store')
-parser.add_argument('--train_steps', default=500, action='store')
-parser.add_argument('--eval_batches', default=10, action='store')
+parser.add_argument('--steps_per_eval', default=50, action='store', help='Number of steps before generating metrics and images.')
+parser.add_argument('--train_steps', default=500, action='store', help='Number of training steps')
+parser.add_argument('--eval_batches', default=10, action='store', help='Number of batches to evaluate for eval.')
 args = parser.parse_args()
+
+
 
 RUN_NAME = args.run_name
 IMAGE_DIR = args.image_dir
