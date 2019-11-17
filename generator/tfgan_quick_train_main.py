@@ -1,4 +1,4 @@
-from tfgan_quick_train_lib import *
+from generator.tfgan_quick_train_lib import *
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v2 as tf_v2
 import tensorflow_gan as tfgan
@@ -43,7 +43,6 @@ def input_fn(mode, params, shuffle_control=False):
     assert 'noise_dims' in params
     bs = params['batch_size']
     nd = params['noise_dims']
-    split = 'train' if mode == tf_v1.estimator.ModeKeys.TRAIN else 'test'
     shuffle = shuffle_control and (mode == tf_v1.estimator.ModeKeys.TRAIN)
     just_noise = (mode == tf_v1.estimator.ModeKeys.PREDICT)
 

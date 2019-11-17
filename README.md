@@ -12,9 +12,10 @@ cd data
 python3 download_dataset.py
 ```
 
-## Running the training script
+## Running the GAN training script
 
 ```
+cd generator
 python tfgan_quick_train_main.py --help      # to list all arguments
 python tfgan_quick_train_main.py --run_name=<run_name>
 ```

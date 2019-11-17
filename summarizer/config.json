@@ -1,0 +1,8 @@
+{
+  "generator_model": "/mnt/",
+  "steps_per_eval": 500,
+  "train_steps": 20000,
+  "storage_dir": "/mnt/",
+  "poster_dir": "/mnt/movie_poster_images",
+  "trailer_dir": "/mnt/movie_trailer_frames"
+}
