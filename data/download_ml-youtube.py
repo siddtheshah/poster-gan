@@ -3,7 +3,7 @@ from pytube import YouTube
 import sys
 import os
 
-import youtube_dl as ydl
+#import youtube_dl as ydl
 
 def make_directories(video_names):
   if not os.path.exists('../../ml_trailers'):
