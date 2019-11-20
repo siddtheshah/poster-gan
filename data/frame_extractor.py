@@ -23,7 +23,9 @@ def extract_videos_for_conv2d(video_input_file_path, feature_output_file_path, m
                 features.append(image[:, :, channel])
             count = count + 1
     unscaled_features = np.array(features)
+    #print(unscaled_features)
     unscaled_features = np.transpose(unscaled_features, axes=(1, 2, 0))
+    unscaled_features = np.reshape(unscaled_features, (240,240,3,count))
     print(unscaled_features.shape)
     if feature_output_file_path is not None:
         np.save(feature_output_file_path, unscaled_features)
