@@ -55,6 +55,8 @@ class SummaryDataset:
             train_ids = self._movie_ids[:self._split_index*self._interval] \
                         + self._movie_ids[(self._split_index + 1)*self._interval:]
             self._split_index += 1
+            if self._split_index == self._folds:
+                self._split_index = 0 # We've reached the end. Start over.
             train_dataset = tf_v1.data.Dataset.from_tensor_slices(train_ids).map(self.make_example)
             validation_dataset = tf_v1.data.Dataset.from_tensor_slices(validation_ids).map(self.make_example)
             return train_dataset, validation_dataset

@@ -1,8 +1,13 @@
 {
   "generator_model": "/mnt/",
-  "steps_per_eval": 500,
-  "train_steps": 20000,
+  "epochs": 10,
+  "batch_size": 32,
+  "epochs_per_validation": 5,
+  "validation_folds": 10,
   "storage_dir": "/mnt/",
   "poster_dir": "/mnt/movie_poster_images",
-  "trailer_dir": "/mnt/movie_trailer_frames"
+  "trailer_dir": "/mnt/movie_trailer_frames",
+  "optimizer": "adam",
+  "weight_decay": 2e-5,
+  "learning_rate": 1e-3
 }
