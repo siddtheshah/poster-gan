@@ -19,6 +19,13 @@ def download_videos(video_names, movie_imdb_id_mapping):
     movie_id = row[1]
     title = row[2]
 
+    if ', The' in title:
+      print("In here")
+      title = title.replace(', The', "", 1)
+      title = "The " + title
+    print(title)
+
+
     full_video_link = "https://www.youtube.com/watch?v="+youtube_id
     res = '240p'
     output_path = '../../ml_trailers'
@@ -70,7 +77,7 @@ if __name__ == '__main__':
 
   #Asssuming this is run in data folder
   video_name_file = 'ml-youtube.csv'
-  #video_name_file = 'test.csv'
+  video_name_file = 'test.csv'
 
   video_names = pd.read_csv(video_name_file)
 
