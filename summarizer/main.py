@@ -25,9 +25,8 @@ args = parser.parse_args()
 
 def train_new_model(configs):
     # Compose the training step
-    generator = None # Use TF.load_model to load the gan as a module of some kind.
-    discriminator = None # Again, use TF.load_model to load the discriminator side.
-    model = SummaryNetwork(generator, configs["weight_decay"])
+    gan = tf_v1.saved_model.load(configs["generator_model"])
+    model = SummaryNetwork(gan, configs["weight_decay"])
     dataset = SummaryDataset(args.trailer_dir, args.poster_dir, configs["validation_folds"])
     optimizer = tf_v1.keras.optimizers.Adam()
     save_dir = os.path.join(args.storage_dir, args.run_name, "model")
@@ -37,7 +36,7 @@ def train_new_model(configs):
     batch_size = configs["batch_size"]
     epochs_per_validation = configs["epochs_per_validation"]
     # Create the trainer and train.
-    trainer = SummaryTrainer(model, discriminator, dataset, save_dir, optimizer, loss, alpha, beta, batch_size, epochs_per_validation)
+    trainer = SummaryTrainer(model, gan, dataset, save_dir, optimizer, loss, alpha, beta, batch_size, epochs_per_validation)
     trainer.train(configs["epochs"])
     return
 

@@ -8,7 +8,8 @@ import tensorflow.compat.v2 as tf_v2
 # Linear composition of an objective function
 
 def discriminator_loss(discriminator, y_synth, alpha):
-    return alpha*discriminator(y_synth)
+    input_fn = lambda: y_synth
+    return alpha*discriminator.evaluate(input_fn)
 
 def summarizer_loss(y_truth, y_synth, beta):
     return beta*tf_v2.image.ssim(y_synth, y_truth, 255)

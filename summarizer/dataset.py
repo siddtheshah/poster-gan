@@ -1,5 +1,6 @@
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v2 as tf_v2
+import numpy as np
 import os
 
 class SummaryDataset:
@@ -31,16 +32,19 @@ class SummaryDataset:
         poster = tf_v1.reshape(image, [64,64,3])
 
         # Getting trailer
-        trailer_path  = os.path.join(self.trailer_dir, movieId)
-        trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
-         os.path.isfile(os.path.join(trailer_path, f))]
+        trailer_path  = os.path.join(self.trailer_dir, movieId + ".npy")
+        trailer_mat = np.read(trailer_path)
+
+        # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
+        #  os.path.isfile(os.path.join(trailer_path, f))]
         trailer_frames = []
-        for trailer_img_path in trailer_img_paths:
-            image_string = tf_v1.read_file(trailer_img_path)
-            image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
-            image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
-            image_decoded = tf_v2.expand_dims(image_decoded, 0)
-            image = tf_v1.cast(image_decoded, tf_v1.float32)
+        for i in range(trailer_mat.shape[-1]):
+            # image_string = tf_v1.read_file(trailer_img_path)
+            # image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
+            # image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
+            # image_decoded = tf_v2.expand_dims(image_decoded, 0)
+            image = tf_v1.convert_to_tensor(trailer_mat[:, :, :, i])
+            image = tf_v1.cast(image, tf_v1.float32)
             resized = tf_v1.image.resize(image, [64, 64])
             trailer_frames.append(tf_v1.reshape(resized, [64, 64, 3]))
 
