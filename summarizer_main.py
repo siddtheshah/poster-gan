@@ -17,9 +17,9 @@ import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--train', default=False, action='store_true', help='Train a new model')
 parser.add_argument('--eval', default=False, action='store_true', help='Run eval on the model')
-parser.add_argument('--storage_dir', default='/mnt/', action='store', help='Specify path of results and model data')
-parser.add_argument('--trailer_dir', default='/mnt/movie_trailer_frames', action='store', help='Specify poster data path')
-parser.add_argument('--image_dir', default='/mnt/movie_poster_images', action='store', help='Specify poster data path')
+parser.add_argument('--storage_dir', default='/mnt/disks/new_space/ml/summarizer', action='store', help='Specify path of results and model data')
+parser.add_argument('--trailer_dir', default='/mnt/disks/new_space/ml_trailers_key_frame_features', action='store', help='Specify poster data path')
+parser.add_argument('--image_dir', default='/mnt/disks/new_space/movie_poster_images', action='store', help='Specify poster data path')
 parser.add_argument('--run_name', help='Specify a run name. (Required)', action='store')
 args = parser.parse_args()
 
