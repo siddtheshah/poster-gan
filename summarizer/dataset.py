@@ -3,34 +3,48 @@ import tensorflow.compat.v2 as tf_v2
 import numpy as np
 import os
 
+# This method is not serialized into the graph definition. Ergo, if this
+# model is loaded where this module is not imported, it will error.
+# We have to get off the .npy file format and use jpg in that case.
+def tf_np_load(filepath):
+        return tf_v1.convert_to_tensor(np.load(filepath))
+
 def make_summary_example(movieId, poster_dir, trailer_dir):
     # Getting poster
-    image_string = tf_v1.read_file(os.path.join(poster_dir, movieId + ".jpg"))
+    image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
     image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
     image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
-    image_decoded = tf_v2.expand_dims(image_decoded, 0)
+    # image_decoded = tf_v2.expand_dims(image_decoded, 0)
+    print("Poster shape debug:")
+    print(image_decoded.shape)
     image = tf_v1.cast(image_decoded, tf_v1.float32)
-
-    image = tf_v1.image.resize(image, [64, 64])
+    print(image.shape)
+    image = tf_v1.image.resize(image, [64, 64], name="poster_resize")
     # 64 x 64 image with 3 channels
-    poster = tf_v1.reshape(image, [64, 64, 3])
+    print(image.shape)
+    poster = tf_v1.reshape(image, [64, 64, 3], name="poster_reshape")
 
     # Getting trailer
-    trailer_path = os.path.join(trailer_dir, movieId + ".npy")
-    trailer_mat = np.read(trailer_path)
-
+    trailer_path = trailer_dir + os.sep + movieId + '.npy'
+    # trailer_mat = tf_v1.py_func(tf_np_load, [trailer_path], tf_v1.float32)
+    trailer_mat = tf_v1.zeros((240, 240, 3, 20))
+    print(trailer_mat.shape)
+    trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
     # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
     #  os.path.isfile(os.path.join(trailer_path, f))]
     trailer_frames = []
-    for i in range(trailer_mat.shape[-1]):
+    print(trailer_mat.shape)
+    for i in range(tf_v1.shape(trailer_mat)[-1]):
         # image_string = tf_v1.read_file(trailer_img_path)
         # image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
         # image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
         # image_decoded = tf_v2.expand_dims(image_decoded, 0)
-        image = tf_v1.convert_to_tensor(trailer_mat[:, :, :, i])
+        image = trailer_mat[:, :, :, i]
+        image = tf_v1.reshape(image, (240, 240, 3))
         image = tf_v1.cast(image, tf_v1.float32)
-        resized = tf_v1.image.resize(image, [64, 64])
-        trailer_frames.append(tf_v1.reshape(resized, [64, 64, 3]))
+        # resized = tf_v1.image.resize(image, [64, 64])
+        # trailer_frames.append(tf_v1.reshape(resized, [64, 64, 3]))
+        trailer_frames.append(poster)
 
     return trailer_frames, poster
 
@@ -38,11 +52,14 @@ class SummaryDataset:
     def __init__(self, trailer_dir, poster_dir, folds=0):
         self.poster_dir = poster_dir
         self.trailer_dir = trailer_dir
-        trailer_ids = set([f[:-4] for f in os.listdir(trailer_dir) if
-                       os.path.isdir(os.path.join(trailer_dir, f))])
-        poster_ids = set([f[:-4] for f in os.listdir(poster_dir) if
+        trailer_ids = set([str(f[:-4]) for f in os.listdir(trailer_dir) if
+                       os.path.isfile(os.path.join(trailer_dir, f))])
+        print("Number of Trailer IDs:", len(trailer_ids))
+        poster_ids = set([str(f[:-4]) for f in os.listdir(poster_dir) if
              os.path.isfile(os.path.join(poster_dir, f))]) # remove the extension when comparing
+        print("Number of Poster IDs:", len(poster_ids))
         self._movie_ids = list(trailer_ids.intersection(poster_ids))  # We only want examples where the data is complete
+        print("IDs in training set: ", self._movie_ids)
         self._folds = folds
         if folds > 1:
             self._interval = len(self._movie_ids)/folds

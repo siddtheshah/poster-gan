@@ -22,28 +22,32 @@ class SummaryTrainer:
         self._summarizer_loss = []
         self._losses = []
 
+    @tf_v1.function
     def train(self, epochs):
         """
         Executes the training loop.
         """
-        for epoch in range(epochs):
-            epoch_loss_avg = tf_v1.keras.metrics.Mean()
-            train_dataset, validation_dataset = self._dataset.get_split()
-            for x, y in train_dataset:
-                # Optimize the model
-                loss_value, grads = self._loss_fn(self._model, self._discriminator, x, y, self._alpha, self._beta)
-                # functools.partial will give parameter binding for above so we don't have to pass discriminator, alpha, or beta
-                self._optimizer.apply_gradients(zip(grads, self._model.trainable_variables))
-                epoch_loss_avg(loss_value)
+        tf_v1.enable_eager_execution()
+        with tf_v1.Session() as sess:
+            sess.run(tf_v1.global_variables_initializer())
+            for epoch in range(epochs):
+                epoch_loss_avg = tf_v1.keras.metrics.Mean()
+                train_dataset, validation_dataset = self._dataset.get_split()
+                for x, y in train_dataset:
+                    # Optimize the model
+                    loss_value, grads = self._loss_fn(self._model, self._discriminator, x, y, self._alpha, self._beta)
+                    # functools.partial will give parameter binding for above so we don't have to pass discriminator, alpha, or beta
+                    self._optimizer.apply_gradients(zip(grads, self._model.trainable_variables))
+                    epoch_loss_avg(loss_value)
 
-            if validation_dataset and epoch % self._epochs_per_validation == 0:
-                print("Validating at Epoch " + str(epoch))
-                self._losses.append(epoch_loss_avg.result())
-                self.validate(validation_dataset)
-                tf_v1.saved_model.save(self._model, self._save_dir)
+                if validation_dataset and epoch % self._epochs_per_validation == 0:
+                    print("Validating at Epoch " + str(epoch))
+                    self._losses.append(epoch_loss_avg.result())
+                    self.validate(validation_dataset)
+                    tf_v1.saved_model.save(self._model, self._save_dir)
 
-        tf_v1.saved_model.save(self._model, self._save_dir)
-        print("Model finished training.")
+            tf_v1.saved_model.save(self._model, self._save_dir)
+            print("Model finished training.")
 
     def validate(self, validation_dataset):
         for x, y in validation_dataset:

@@ -27,6 +27,7 @@ parser.add_argument('--poster_dir', default='/mnt/disks/new_space/movie_poster_i
 parser.add_argument('--run_name', help='Specify a run name. (Required)', action='store')
 args = parser.parse_args()
 
+tf_v1.enable_eager_execution()
 
 def train_new_model(configs):
     # Create and save a mock generator/discriminator
@@ -41,7 +42,8 @@ def train_new_model(configs):
     generator = tf_v1.keras.models.load_model(os.path.join(args.storage_dir, "generator"))
     discriminator = tf_v1.keras.models.load_model(os.path.join(args.storage_dir, "discriminator"))
 
-    model = SummaryNetwork(generator, configs["weight_decay"]).compile()
+    model = SummaryNetwork(generator, configs["weight_decay"])
+    model.compile()
     dataset = SummaryDataset(args.trailer_dir, args.poster_dir, configs["validation_folds"])
     optimizer = tf_v1.keras.optimizers.Adam()
     save_dir = os.path.join(args.storage_dir, args.run_name, "model")

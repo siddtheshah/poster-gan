@@ -5,7 +5,7 @@
   "epochs": 10,
   "batch_size": 32,
   "epochs_per_validation": 5,
-  "validation_folds": 10,
+  "validation_folds": 0,
   "storage_dir": "/mnt/",
   "poster_dir": "/mnt/movie_poster_images",
   "trailer_dir": "/mnt/movie_trailer_frames",
