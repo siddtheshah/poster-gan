@@ -8,5 +8,8 @@
   "poster_dir": "/mnt/movie_poster_images",
   "trailer_dir": "/mnt/movie_trailer_frames",
   "weight_decay": 2e-5,
-  "learning_rate": 1e-3
+  "learning_rate": 1e-3,
+  "eval_ids": [
+    112281
+  ]
 }

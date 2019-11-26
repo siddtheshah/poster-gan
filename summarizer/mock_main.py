@@ -1,17 +1,19 @@
+from summarizer.mock_gan import MockDiscriminator
+from summarizer.mock_gan import MockGenerator
 import summarizer.eval
-from summarizer.train import SummaryTrainer
+import summarizer.train
 from summarizer.dataset import SummaryDataset
 from summarizer.network import SummaryNetwork
 
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v2 as tf_v2
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+
 import logging
 import os
 import time
 import json
-
 import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -24,9 +26,17 @@ parser.add_argument('--run_name', help='Specify a run name. (Required)', action=
 args = parser.parse_args()
 
 def train_new_model(configs):
+    # Create and save a mock generator/discriminator
+    generator = MockGenerator()
+    generator.save(os.path.join(args.storage_dir, "generator"), save_format='tf')
+    discriminator = MockDiscriminator()
+    discriminator.save(os.path.join(args.storage_dir, "discriminator"), save_format='tf')
+
     # Compose the training step
-    gan = tf_v1.saved_model.load(configs["generator_model"])
-    model = SummaryNetwork(gan, configs["weight_decay"]).compile()
+    generator = tf_v1.keras.models.load_model(os.path.join(args.storage_dir, "generator"))
+    discriminator = tf_v1.keras.models.load_model(os.path.join(args.storage_dir, "discriminator"))
+
+    model = SummaryNetwork(generator, configs["weight_decay"]).compile()
     dataset = SummaryDataset(args.trailer_dir, args.poster_dir, configs["validation_folds"])
     optimizer = tf_v1.keras.optimizers.Adam()
     save_dir = os.path.join(args.storage_dir, args.run_name, "model")
@@ -36,7 +46,7 @@ def train_new_model(configs):
     batch_size = configs["batch_size"]
     epochs_per_validation = configs["epochs_per_validation"]
     # Create the trainer and train.
-    trainer = SummaryTrainer(model, gan, dataset, save_dir, optimizer, loss, alpha, beta, batch_size, epochs_per_validation)
+    trainer = summarizer.train.SummaryTrainer(model, discriminator, dataset, save_dir, optimizer, loss, alpha, beta, batch_size, epochs_per_validation)
     trainer.train(configs["epochs"])
     return
 
@@ -49,15 +59,16 @@ def eval_model(configs):
     # Show real poster vs predictions
     summarizer.eval.show_predict_comparison(model, configs["eval_ids"], results_dir, args.poster_dir, args.trailer_dir)
 
+    # Other evaluation metrics
+
 def main():
     with open('config.json') as config_file:
         configs = json.load(config_file)
     if args.train:
         train_new_model(configs)
+
     if args.eval:
         eval_model(configs)
-
-    return
 
 if __name__ == "__main__":
     main()

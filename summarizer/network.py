@@ -1,8 +1,6 @@
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v1 as tf_v2
 
-
-
 class SummaryNetwork(tf_v1.keras.Model):
     def __init__(self, gan_generator, weight_decay):
         super(SummaryNetwork, self).__init__()
