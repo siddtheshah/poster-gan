@@ -8,8 +8,10 @@ import tensorflow.compat.v2 as tf_v2
 class MockGenerator(tf_v1.keras.Model):
     def __init__(self):
         super(MockGenerator, self).__init__()
+        # self.cn1 = tf_v1.keras.layers.Conv2D(3, (3,3), activation='relu', input_shape=(64, 64, 3))
 
     def call(self, inputs):
+        # outputs = self.cn1(inputs)
         return inputs
 
 # This mock discriminator just returns 0 as its output.
