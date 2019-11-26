@@ -1,4 +1,6 @@
 {
+  "alpha": 0.5,
+  "beta": 0.5,
   "generator_model": "/mnt/",
   "epochs": 10,
   "batch_size": 32,

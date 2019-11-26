@@ -23,7 +23,7 @@ parser.add_argument('--train', default=False, action='store_true', help='Train a
 parser.add_argument('--eval', default=False, action='store_true', help='Run eval on the model')
 parser.add_argument('--storage_dir', default='/mnt/disks/new_space/ml/summarizer', action='store', help='Specify path of results and model data')
 parser.add_argument('--trailer_dir', default='/mnt/disks/new_space/ml_trailers_key_frame_features', action='store', help='Specify poster data path')
-parser.add_argument('--image_dir', default='/mnt/disks/new_space/movie_poster_images', action='store', help='Specify poster data path')
+parser.add_argument('--poster_dir', default='/mnt/disks/new_space/movie_poster_images', action='store', help='Specify poster data path')
 parser.add_argument('--run_name', help='Specify a run name. (Required)', action='store')
 args = parser.parse_args()
 
@@ -31,9 +31,10 @@ args = parser.parse_args()
 def train_new_model(configs):
     # Create and save a mock generator/discriminator
     generator = MockGenerator()
-    generator._set_inputs(
+    generator._set_inputs((64,64,3))
     generator.save(os.path.join(args.storage_dir, "generator"), save_format='tf')
     discriminator = MockDiscriminator()
+    discriminator._set_inputs((64, 64, 3))
     discriminator.save(os.path.join(args.storage_dir, "discriminator"), save_format='tf')
 
     # Compose the training step

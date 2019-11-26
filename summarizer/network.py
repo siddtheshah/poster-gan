@@ -22,7 +22,7 @@ class SummaryNetwork(tf_v1.keras.Model):
               padding='same', return_sequences=True, kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
               bias_initializer=tf_v1.keras.regularizers.l2(weight_decay))
         self.bn_4 = tf_v1.keras.layers.BatchNormalization()
-        self.conv = tf_v1.keras.layers.Conv3D(filters=3, strides=1, kernel_size=(3, 3), kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+        self.conv = tf_v1.keras.layers.Conv3D(filters=3, strides=1, kernel_size=(3, 3, 3), kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
               bias_initializer=tf_v1.keras.regularizers.l2(weight_decay))
 
     def call(self, inputs):
