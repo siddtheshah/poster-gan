@@ -3,6 +3,7 @@ import tensorflow.compat.v2 as tf_v2
 import summarizer.graph
 import numpy as np
 import os
+import imghdr
 
 global summary_graph
 summary_graph = summarizer.graph.summary_graph
@@ -76,14 +77,19 @@ def make_example(trailer_dir, poster_dir):
         return trailer_frames, poster
     return example
 
+def valid_poster(path):
+    return os.path.isfile(path) and imghdr.what(path) == 'jpg'
+
 def create_summary_dataset(trailer_dir, poster_dir, batch_size):
     poster_dir = poster_dir
     trailer_dir = trailer_dir
     trailer_ids = set([str(f[:-4]) for f in os.listdir(trailer_dir) if
                        os.path.isfile(os.path.join(trailer_dir, f))])
     print("Number of Trailer IDs:", len(trailer_ids))
-    poster_ids = set([str(f[:-4]) for f in os.listdir(poster_dir) if
-                      os.path.isfile(os.path.join(poster_dir, f))])  # remove the extension when comparing
+    # remove the extension when comparing
+    poster_ids = set([str(f[:-4]) for f in os.listdir(poster_dir) if valid_poster(os.path.join(poster_dir, f))])
+
+
     print("Number of Poster IDs:", len(poster_ids))
     movie_ids = list(trailer_ids.intersection(poster_ids))  # We only want examples where the data is complete
     print("IDs in training set: ", movie_ids)
