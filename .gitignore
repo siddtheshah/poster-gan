@@ -3,6 +3,7 @@ venv*
 .git
 data_processing/movie_poster_images
 data/movie_poster_images
+data/movie_trailers
 datasets
 results
 __pycache__
