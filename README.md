@@ -20,6 +20,13 @@ python tfgan_quick_train_main.py --help      # to list all arguments
 python tfgan_quick_train_main.py --run_name=<run_name>
 ```
 
+## Running the Summarizer training script
+
+```
+# Configure summarizer_config.json with paths and parameters first
+python summarizer_main --train --eval --run_name=<some run name>
+```
+
 ## File Overview:
 - tfgan_quick_train_lib.py contains the discriminator and generator architecture. This was derived from the GAN tutorial provided in class.
 - tfgan_quick_train_main.py contains the running of the gan on a specific dataset of images. The path to the images is currently hard-coded in the files.

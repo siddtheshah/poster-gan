@@ -1,6 +1,7 @@
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v2 as tf_v2
 
+
 # This mock generator just returns the input as its output.
 
 # When the summarization model is using this as it's generator, it
@@ -13,6 +14,7 @@ class MockGenerator(tf_v1.keras.Model):
     def call(self, inputs):
         # outputs = self.cn1(inputs)
         return inputs
+
 
 # This mock discriminator just returns 0 as its output.
 

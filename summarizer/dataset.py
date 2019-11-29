@@ -13,7 +13,6 @@ summary_graph = summarizer.graph.summary_graph
 def tf_np_load(filepath):
     return tf_v1.convert_to_tensor(np.load(filepath).astype(np.float32))
 
-
 def make_summary_example(movieId, poster_dir, trailer_dir):
     image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
     image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
@@ -26,17 +25,12 @@ def make_summary_example(movieId, poster_dir, trailer_dir):
 
     # Getting trailer
     trailer_path = trailer_dir + os.sep + movieId + '.npy'
-    # trailer_mat = tf_v1.numpy_function(tf_np_load, [trailer_path], tf_v1.float32)
-    trailer_mat = tf_v1.zeros((240, 240, 3, 20))
+    trailer_mat = tf_v1.numpy_function(tf_np_load, [trailer_path], tf_v1.float32)
     trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
     # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
     #  os.path.isfile(os.path.join(trailer_path, f))]
     trailer_frames = []
     for i in range(20):
-        # image_string = tf_v1.read_file(trailer_img_path)
-        # image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
-        # image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
-        # image_decoded = tf_v2.expand_dims(image_decoded, 0)
         image = trailer_mat[:, :, :, i]
         image = tf_v1.reshape(image, (240, 240, 3))
         image = tf_v1.cast(image, tf_v1.float32)
@@ -73,10 +67,6 @@ def make_example(trailer_dir, poster_dir):
         trailer_frames = []
         print(trailer_mat.shape)
         for i in range(20):
-            # image_string = tf_v1.read_file(trailer_img_path)
-            # image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
-            # image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
-            # image_decoded = tf_v2.expand_dims(image_decoded, 0)
             image = trailer_mat[:, :, :, i]
             image = tf_v1.reshape(image, (240, 240, 3))
             image = tf_v1.cast(image, tf_v1.float32)
