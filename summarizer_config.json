@@ -6,9 +6,9 @@
   "epochs": 10,
   "batch_size": 1,
   "validation_folds": 5,
-  "storage_dir": "/mnt/",
-  "poster_dir": "/mnt/movie_poster_images",
-  "trailer_dir": "/mnt/movie_trailer_frames",
+  "storage_dir": "/mnt/disks/new_space/summarizer",
+  "poster_dir": "/mnt/disks/new_space/movie_poster_images",
+  "trailer_dir": "/mnt/disks/new_space/ml_trailers_key_frame_features",
   "weight_decay": 2e-5,
   "learning_rate": 1e-3,
   "eval_ids": [

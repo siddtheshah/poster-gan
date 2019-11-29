@@ -44,6 +44,7 @@ def make_example(trailer_dir, poster_dir):
     def example(movieId):
         # with summary_graph.as_default() as graph:
         # Getting poster
+        movieId = tf_v1.Print(movieId, [movieId])
         image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
         image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
         image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
@@ -78,20 +79,24 @@ def make_example(trailer_dir, poster_dir):
     return example
 
 def valid_poster(path):
-    return os.path.isfile(path) and imghdr.what(path) == 'jpg'
+    print(path)
+    return os.path.isfile(path)  and imghdr.what(path) == 'jpeg'
 
 def create_summary_dataset(trailer_dir, poster_dir, batch_size):
     poster_dir = poster_dir
     trailer_dir = trailer_dir
     trailer_ids = set([str(f[:-4]) for f in os.listdir(trailer_dir) if
                        os.path.isfile(os.path.join(trailer_dir, f))])
+    print("Trailer IDS", trailer_ids)
     print("Number of Trailer IDs:", len(trailer_ids))
     # remove the extension when comparing
-    poster_ids = set([str(f[:-4]) for f in os.listdir(poster_dir) if valid_poster(os.path.join(poster_dir, f))])
-
-
-    print("Number of Poster IDs:", len(poster_ids))
-    movie_ids = list(trailer_ids.intersection(poster_ids))  # We only want examples where the data is complete
+    movie_ids = []
+    for filename in os.listdir(poster_dir):
+        raw_id = str(filename[:-4])
+        if raw_id in trailer_ids:
+            if valid_poster(os.path.join(poster_dir, filename)):
+                movie_ids.append(raw_id)
+    
     print("IDs in training set: ", movie_ids)
 
     total = len(movie_ids)
