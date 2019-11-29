@@ -80,8 +80,14 @@ def valid_poster(path):
 def create_summary_dataset(trailer_dir, poster_dir, batch_size):
     poster_dir = poster_dir
     trailer_dir = trailer_dir
-    trailer_ids = set([str(f[:-4]) for f in os.listdir(trailer_dir) if
-                       os.path.isfile(os.path.join(trailer_dir, f))])
+    trailer_ids = set()
+    for filename in os.listdir(trailer_dir):
+        path = os.path.join(trailer_dir, filename)
+        if os.path.isfile(path):
+            arr = np.load(path)
+            if arr.size == 20*240*240*3:
+                trailer_ids.add(filename[:-4])
+
     print("Trailer IDS", trailer_ids)
     print("Number of Trailer IDs:", len(trailer_ids))
     # remove the extension when comparing
