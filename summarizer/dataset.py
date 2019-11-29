@@ -26,8 +26,8 @@ def make_summary_example(movieId, poster_dir, trailer_dir):
 
     # Getting trailer
     trailer_path = trailer_dir + os.sep + movieId + '.npy'
-    trailer_mat = tf_v1.numpy_function(tf_np_load, [trailer_path], tf_v1.float32)
-    trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
+    trailer_mat = tf_np_load(trailer_path)
+    # trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
     # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
     #  os.path.isfile(os.path.join(trailer_path, f))]
     trailer_frames = []
@@ -60,14 +60,9 @@ def make_example(trailer_dir, poster_dir):
 
         # Getting trailer
         trailer_path = trailer_dir + os.sep + movieId + '.npy'
-        # trailer_mat = tf_v1.numpy_function(tf_np_load, [trailer_path], tf_v1.float32)
-        trailer_mat = tf_v1.zeros((240, 240, 3, 20))
-        print(trailer_mat.shape)
+        trailer_mat = tf_v1.py_func(tf_np_load, [trailer_path], tf_v1.float32)
         trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
-        # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
-        #  os.path.isfile(os.path.join(trailer_path, f))]
         trailer_frames = []
-        print(trailer_mat.shape)
         for i in range(20):
             image = trailer_mat[:, :, :, i]
             image = tf_v1.reshape(image, (240, 240, 3))
