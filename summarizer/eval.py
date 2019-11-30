@@ -40,18 +40,45 @@ def summarizer_loss(beta, generator):
             # print(summarizer_output.graph)
             y_synth = generator(summarizer_output)["output_1"]
             return beta * tf_v2.image.ssim(y_synth, y_truth, 255)
+    return loss
 
+def color_loss(gamma, bins):
+    def hists(img):
+        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True)[0]
+        hist = hist.astype(np.float32)
+        # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
+        return hist.flatten()
+
+    def loss(summarizer_output, y_truth):
+        with summary_graph.as_default():
+            hist1 = tf_v1.numpy_function(hists, [summarizer_output], tf_v1.float32)
+            hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
+            return gamma*(tf_v1.reduce_sum(((hist1-hist2)**2)))
     return loss
 
 # Combination of both summarizer loss and discriminator loss
-def combined_loss(alpha, beta, generator, discriminator):
+def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
+    def hists(img):
+        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True)[0]
+        hist = hist.astype(np.float32)
+        # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
+        return hist.flatten()
+
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
             y_synth = generator(summarizer_output)["output_1"]
             fake_score = discriminator(y_synth)["output_1"]
-            return beta * tf_v2.image.ssim(y_synth, y_truth, 255) + alpha * (1 - fake_score)
+
+            hist1 = tf_v1.numpy_function(hists, [summarizer_output], tf_v1.float32)
+            hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
+            color_loss = gamma*(tf_v1.reduce_sum(((hist1-hist2)**2)))
+            summarizer_loss = beta * tf_v2.image.ssim(y_synth, y_truth, 255)
+            discriminator_loss = alpha*(1 - fake_score)
+            return  summarizer_loss + discriminator_loss + color_loss
 
     return loss
+
+
 
 # Other eval metrics.
 # TODO: Frechet Inception Distance

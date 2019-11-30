@@ -27,7 +27,7 @@ def make_summary_example(movieId, poster_dir, trailer_dir):
     # Getting trailer
     trailer_path = trailer_dir + os.sep + movieId + '.npy'
     trailer_mat = tf_np_load(trailer_path)
-    # trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
+    trailer_mat = tf_v1.reshape(trailer_mat, (240, 240, 3, 20))
     # trailer_img_paths = [os.path.join(trailer_path, f) for f in os.listdir(trailer_path) if
     #  os.path.isfile(os.path.join(trailer_path, f))]
     trailer_frames = []

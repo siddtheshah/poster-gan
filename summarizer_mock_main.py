@@ -48,11 +48,11 @@ def train_new_model(configs):
     generator = MockGenerator()
     generator._set_inputs(tf_v1.keras.Input(shape=(64, 64, 3)))
     generator.compile(loss='mse', optimizer='rmsprop')
-    generator.save(os.path.join(configs["storage_dir"], "generator"), save_format='tf')
+    generator.save(configs["generator_path"], save_format='tf')
     discriminator = MockDiscriminator()
     discriminator._set_inputs(tf_v1.keras.Input(shape=(64, 64, 3)))
     discriminator.compile(loss='mse', optimizer='rmsprop')
-    discriminator.save(os.path.join(configs["storage_dir"], "discriminator"), save_format='tf')
+    discriminator.save(configs["discriminator_path"], save_format='tf')
 
     # Compose the training step
     generator = tf_v2.saved_model.load(export_dir=os.path.join(configs["storage_dir"], "generator"))
@@ -75,9 +75,10 @@ def train_new_model(configs):
             model = SummaryNetwork(configs["weight_decay"])
             summarizer_loss = summarizer.eval.summarizer_loss(beta, generator_predict)
             discriminator_loss = summarizer.eval.discriminator_loss(alpha, discriminator_predict, generator_predict)
-            combined_loss = summarizer.eval.combined_loss(alpha, beta, generator_predict, discriminator_predict)
+            color_loss = summarizer.eval.color_loss(.5, 8)
+            combined_loss = summarizer.eval.combined_loss(alpha, beta, .5, generator_predict, discriminator_predict, 8)
             model.compile(optimizer=tf_v1.keras.optimizers.Adam(),
-                          loss=combined_loss, metrics=[summarizer_loss, discriminator_loss])
+                          loss=combined_loss, metrics=[summarizer_loss, color_loss])
             # model.compile(optimizer=tf_v1.keras.optimizers.RMSprop(), loss=discriminator_loss, metrics=[])
             # model.compile(optimizer=tf_v1.keras.optimizers.RMSprop(), loss=tf_v1.keras.losses.mean_squared_error, metrics=[])
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
