@@ -113,6 +113,7 @@ while cur_step < MAX_TRAIN_STEPS:
 
     start = time.time()
     print("Training instance")
+
     gan_estimator.train(input_fn, max_steps=next_step)
     print("Done training on instance")
     steps_taken = next_step - cur_step
@@ -162,3 +163,11 @@ while cur_step < MAX_TRAIN_STEPS:
     plt.plot(steps, fake_logits)
     plt.savefig(os.path.join(RUN_DIR, "training_plot.png"))
     plt.close()
+
+serving_input_fn = tf_v1.estimator.export.build_parsing_serving_input_receiver_fn(
+    {'x': tf_v1.placeholder(tf_v1.float32, shape=(64, 64, 3))})
+
+export_path = gan_estimator.export_saved_model(
+  MODEL_DIR, serving_input_fn)
+
+print("Model exported to ", export_path)
