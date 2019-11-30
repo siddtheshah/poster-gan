@@ -61,7 +61,7 @@ def combined_loss(alpha, beta, generator, discriminator):
 #########################################################
 
 def show_poster_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
-    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)
+    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:10]
     plt.figure()
     rows = []
     for id in eval_ids:
