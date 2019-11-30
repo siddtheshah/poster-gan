@@ -77,15 +77,13 @@ def valid_poster(path):
     print(path)
     return os.path.isfile(path)  and imghdr.what(path) == 'jpeg'
 
-def create_summary_dataset(trailer_dir, poster_dir, batch_size):
-    poster_dir = poster_dir
-    trailer_dir = trailer_dir
+def get_useable_ids(trailer_dir, poster_dir):
     trailer_ids = set()
     for filename in os.listdir(trailer_dir):
         path = os.path.join(trailer_dir, filename)
         if os.path.isfile(path):
             arr = np.load(path)
-            if arr.size == 20*240*240*3:
+            if arr.size == 20 * 240 * 240 * 3:
                 trailer_ids.add(filename[:-4])
 
     print("Trailer IDS", trailer_ids)
@@ -97,8 +95,12 @@ def create_summary_dataset(trailer_dir, poster_dir, batch_size):
         if raw_id in trailer_ids:
             if valid_poster(os.path.join(poster_dir, filename)):
                 movie_ids.append(raw_id)
-    
+
     print("IDs in training set: ", movie_ids)
+    return movie_ids
+
+def create_summary_dataset(trailer_dir, poster_dir, batch_size):
+    movie_ids = get_useable_ids(trailer_dir, poster_dir)
 
     total = len(movie_ids)
     train_total = int(.7*total)

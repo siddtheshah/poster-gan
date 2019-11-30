@@ -69,8 +69,8 @@ def eval_model(configs):
     # Show real poster vs predictions
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    summarizer.eval.show_poster_predict_comparison(model, generator, configs["eval_ids"], results_dir, configs["poster_dir"],
-                                                   configs["trailer_dir"])
+    summarizer.eval.show_poster_predict_comparison(model, generator, results_dir, configs["trailer_dir"],
+                                                   configs["poster_dir"])
 
     # Other evaluation metrics
 
