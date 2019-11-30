@@ -31,11 +31,15 @@ def download_videos(video_names, movie_imdb_id_mapping):
     output_path = '../../ml_trailers'
     filename = ''
 
+    counter = 0 
     #Find the imdb id for the movie trailer so that downloaded value 
     if title in movie_imdb_id_mapping:
       filename = str(movie_imdb_id_mapping[title])
     else:
-      filename = str(title)
+      counter += 1
+      print(counter)
+      print("Can't find file count: ", str(counter))
+      continue
 
     full_file = output_path+'/'+filename+'.mp4'
     

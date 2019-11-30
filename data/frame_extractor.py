@@ -13,7 +13,7 @@ def extract_videos_for_conv2d(video_input_file_path, feature_output_file_path, m
     features = []
     success = True
     while success and count < max_frames:
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count * 3000))  # added this line
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count * 5000))  # added this line
         success, image = vidcap.read()
         # print('Read a new frame: ', success)
         if success:
