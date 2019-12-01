@@ -90,8 +90,6 @@ def train_new_model(configs):
             combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, generator_predict, discriminator_predict, 12)
             model.compile(optimizer=tf_v1.keras.optimizers.Adam(),
                           loss=combined_loss, metrics=[summarizer_loss, color_loss])
-            # model.compile(optimizer=tf_v1.keras.optimizers.RMSprop(), loss=discriminator_loss, metrics=[])
-            # model.compile(optimizer=tf_v1.keras.optimizers.RMSprop(), loss=tf_v1.keras.losses.mean_squared_error, metrics=[])
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
                                                                save_best_only=True, verbose=1, mode='min')
             callbacks_list = [checkpoint]

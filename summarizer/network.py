@@ -15,29 +15,29 @@ class SummaryNetwork(tf_v1.keras.Model):
         # with summary_graph.as_default() as graph:
         self.cl_1 = tf_v1.keras.layers.ConvLSTM2D(filters=40, strides=1, kernel_size=(3, 3),
                                                   padding='same', return_sequences=True,
-                                                  kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
-                                                  bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
                                                   kernel_initializer='random_uniform',
                                                   bias_initializer='zeros')
         self.bn_1 = tf_v1.keras.layers.BatchNormalization()
         self.cl_2 = tf_v1.keras.layers.ConvLSTM2D(filters=40, strides=1, kernel_size=(3, 3),
                                                   padding='same', return_sequences=True,
-                                                  kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
-                                                  bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
                                                   kernel_initializer='random_uniform',
                                                   bias_initializer='zeros')
         self.bn_2 = tf_v1.keras.layers.BatchNormalization()
         self.cl_3 = tf_v1.keras.layers.ConvLSTM2D(filters=40, strides=1, kernel_size=(3, 3),
                                                   padding='same', return_sequences=True,
-                                                  kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
-                                                  bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
                                                   kernel_initializer='random_uniform',
                                                   bias_initializer='zeros')
         self.bn_3 = tf_v1.keras.layers.BatchNormalization()
         self.cl_4 = tf_v1.keras.layers.ConvLSTM2D(filters=40, strides=1, kernel_size=(3, 3),
                                                   padding='same', return_sequences=True,
-                                                  kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
-                                                  bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
+                                                  # bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
                                                   kernel_initializer='random_uniform',
                                                   bias_initializer='zeros')
         self.bn_4 = tf_v1.keras.layers.BatchNormalization()

@@ -20,6 +20,8 @@ summary_graph = summarizer.graph.summary_graph
 # Loss functions
 ##################################################
 
+
+
 # Discriminator loss is the discriminator's belief that the generated image is a poster.
 # It is weighted by alpha.
 def discriminator_loss(alpha, discriminator, generator):
@@ -46,7 +48,7 @@ def color_loss(gamma, bins):
     def hists(img):
         img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
         hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
-        hist = hist.astype(np.float32)
+        hist = hist.astype(np.float32)*bins**3  # Denormalize by bin count.
         # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
         return hist.flatten()
 
