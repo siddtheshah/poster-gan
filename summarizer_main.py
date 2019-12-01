@@ -69,7 +69,6 @@ def train_new_model(configs):
     generator_predict = generator.signatures["serving_default"]
     discriminator = tf_v2.saved_model.load(export_dir=discriminator_path)
     discriminator_predict = discriminator.signatures["serving_default"]
-    print(list(discriminator.signatures.keys()))
 
     alpha = configs["alpha"]
     beta = configs["beta"]

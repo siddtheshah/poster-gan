@@ -74,7 +74,6 @@ def make_example(trailer_dir, poster_dir):
     return example
 
 def valid_poster(path):
-    print(path)
     return os.path.isfile(path)  and imghdr.what(path) == 'jpeg'
 
 def get_useable_ids(trailer_dir, poster_dir):

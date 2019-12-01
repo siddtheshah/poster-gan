@@ -43,7 +43,7 @@ class SummaryNetwork(tf_v1.keras.Model):
         self.bn_4 = tf_v1.keras.layers.BatchNormalization()
         self.conv = tf_v1.keras.layers.Conv3D(filters=3, strides=1, kernel_size=(20, 3, 3),
                                               kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
-                                              padding='valid',
+                                              padding='valid', activation='tanh',
                                               bias_regularizer=tf_v1.keras.regularizers.l2(weight_decay),
                                               kernel_initializer='random_uniform',
                                               bias_initializer='zeros')
@@ -59,7 +59,8 @@ class SummaryNetwork(tf_v1.keras.Model):
         x = self.cl_4(x)
         x = self.bn_4(x)
         x = self.conv(x)
+        x = 127.5*(x + 1)  # Get back on 0-255 scale
         x = tf_v1.reshape(x, [-1, 62, 62, 3])  # Keras Conv3D doesn't allow directional 'same' padding for kernels
+        # x = tf_v1.Print(x, [x])
         x = self.pad(x)
-        print(x.shape)
         return x
