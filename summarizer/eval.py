@@ -44,7 +44,8 @@ def summarizer_loss(beta, generator):
 
 def color_loss(gamma, bins):
     def hists(img):
-        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True)[0]
+        img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
+        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
         hist = hist.astype(np.float32)
         # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
         return hist.flatten()
@@ -59,7 +60,8 @@ def color_loss(gamma, bins):
 # Combination of both summarizer loss and discriminator loss
 def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
     def hists(img):
-        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True)[0]
+        img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
+        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
         hist = hist.astype(np.float32)
         # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
         return hist.flatten()

@@ -73,6 +73,7 @@ def train_new_model(configs):
 
     alpha = configs["alpha"]
     beta = configs["beta"]
+    gamma = configs["gamma"]
     batch_size = configs["batch_size"]
 
     run_dir = os.path.join(configs["storage_dir"], args.run_name)
@@ -85,8 +86,8 @@ def train_new_model(configs):
             model = SummaryNetwork(configs["weight_decay"])
             summarizer_loss = summarizer.eval.summarizer_loss(beta, generator_predict)
             discriminator_loss = summarizer.eval.discriminator_loss(alpha, discriminator_predict, generator_predict)
-            color_loss = summarizer.eval.color_loss(.5, 8)
-            combined_loss = summarizer.eval.combined_loss(alpha, beta, .5, generator_predict, discriminator_predict, 8)
+            color_loss = summarizer.eval.color_loss(gamma, 12)
+            combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, generator_predict, discriminator_predict, 12)
             model.compile(optimizer=tf_v1.keras.optimizers.Adam(),
                           loss=combined_loss, metrics=[summarizer_loss, color_loss])
             # model.compile(optimizer=tf_v1.keras.optimizers.RMSprop(), loss=discriminator_loss, metrics=[])
