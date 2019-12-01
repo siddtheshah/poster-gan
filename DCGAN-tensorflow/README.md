@@ -51,6 +51,7 @@ This will create a folder 'dcgan_movies_posters' with all the posters selected f
 
 `python3 main.py --dataset dcgan_movies_posters --grid_height=6 --grid_width=10  -sample_rate=2 --train`
 
+Other flags for more paramters can be seen in the main.py code.
 
 ## Related works
 
