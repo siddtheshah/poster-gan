@@ -78,7 +78,7 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
             color_loss = gamma*(tf_v1.reduce_sum(((hist1-hist2)**2)))
             summarizer_loss = beta * tf_v2.image.ssim(y_synth, y_truth, 255)
             discriminator_loss = alpha*(1 - fake_score)
-            return  summarizer_loss + discriminator_loss + color_loss
+            return summarizer_loss + discriminator_loss + color_loss
 
     return loss
 
@@ -90,6 +90,17 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 #########################################################
 # Eval functions
 #########################################################
+
+def show_training_plot(history, results_dir):
+    plt.plot(history.history['val_loss'])
+    plt.plot(history.history['val_loss1'])
+    plt.plot(history.history['val_loss'])
+    plt.plot(history.history['val_loss1'])
+    plt.title('model accuracy')
+    plt.ylabel('Weighted Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['SSIM Train Loss', 'Color Train Loss', 'SSIM Validation Loss', 'Color Validation Loss'], loc='upper left')
+    plt.savefig(os.path.join(results_dir, "training_plot.png"))
 
 def show_poster_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
     eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:10]

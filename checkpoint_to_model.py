@@ -71,6 +71,12 @@ def load_graph(frozen_graph_filename):
         tf.import_graph_def(graph_def, name="prefix")
     return graph
 
+def get_graph_def(frozen_graph_filename):
+    # Load the serialized protobuf file and return the unserialized graph_def
+    with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+        return graph_def
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

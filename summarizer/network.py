@@ -12,7 +12,6 @@ class SummaryNetwork(tf_v1.keras.Model):
         # Define network layers
         # Using Keras's ConvLSTM2D to utilize the temporal dimension of a trailer in a basic way.
 
-        # with summary_graph.as_default() as graph:
         self.cl_1 = tf_v1.keras.layers.ConvLSTM2D(filters=40, strides=1, kernel_size=(3, 3),
                                                   padding='same', return_sequences=True,
                                                   # kernel_regularizer=tf_v1.keras.regularizers.l2(weight_decay),

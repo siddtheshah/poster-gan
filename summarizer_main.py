@@ -77,6 +77,7 @@ def train_new_model(configs):
 
     run_dir = os.path.join(configs["storage_dir"], args.run_name)
     save_dir = os.path.join(run_dir, "model")
+    results_dir = os.path.join(run_dir, "results")
 
     with summary_graph.as_default():
         with tf_v1.Session(graph=summary_graph) as sess:
@@ -92,9 +93,10 @@ def train_new_model(configs):
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
                                                                save_best_only=True, verbose=1, mode='min')
             callbacks_list = [checkpoint]
-            model.fit(train_dataset, epochs=configs["epochs"], verbose=2,
+            training_history = model.fit(train_dataset, epochs=configs["epochs"], verbose=2,
                       validation_data=validation_dataset, callbacks=callbacks_list)
             model.save(os.path.join(configs["storage_dir"], args.run_name, "model"), save_format='tf')
+            summarizer.eval.show_training_plot(training_history, results_dir)
             print("Model finished training.")
 
 def eval_model(configs):
