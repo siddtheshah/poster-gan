@@ -78,6 +78,8 @@ def train_new_model(configs):
     run_dir = os.path.join(configs["storage_dir"], args.run_name)
     save_dir = os.path.join(run_dir, "model")
     results_dir = os.path.join(run_dir, "results")
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
 
     with summary_graph.as_default():
         with tf_v1.Session(graph=summary_graph) as sess:

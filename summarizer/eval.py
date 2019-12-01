@@ -92,10 +92,10 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 #########################################################
 
 def show_training_plot(history, results_dir):
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['loss_1'])
     plt.plot(history.history['val_loss'])
-    plt.plot(history.history['val_loss1'])
-    plt.plot(history.history['val_loss'])
-    plt.plot(history.history['val_loss1'])
+    plt.plot(history.history['val_loss_1'])
     plt.title('model accuracy')
     plt.ylabel('Weighted Loss')
     plt.xlabel('Epoch')
