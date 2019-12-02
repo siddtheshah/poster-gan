@@ -3,22 +3,10 @@
 The goal of poster-GAN is to train a generator that can be conditioned on a movie trailer to produce an 
 appropriate poser.
 
-## Dataset download
+## Dataset download and GAN training
 
-Run the following:
+To download the data and set up the GAN, enter the DCGAN-tensorflow folder, and follow the README steps there.
 
-```
-cd data
-python3 download_dataset.py
-```
-
-## Running the GAN training script
-
-```
-cd generator
-python tfgan_quick_train_main.py --help      # to list all arguments
-python tfgan_quick_train_main.py --run_name=<run_name>
-```
 
 ## Running the Summarizer training script
 
