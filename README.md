@@ -1,33 +1,29 @@
 # Poster-GAN
 
 The goal of poster-GAN is to train a generator that can be conditioned on a movie trailer to produce an 
-appropriate poser.
+appropriate poster.
 
-## Dataset download
+## Movie Poster Download and GAN training
 
-Run the following:
+To download the data and setup the GAN, enter the DCGAN-tensorflow folder, and follow the README steps there. The movie posters can also be independently downloaded via ./data/download_posters.py script.
 
-```
-cd data
-python3 download_dataset.py
-```
-
-## Running the GAN training script
-
-```
-cd generator
-python tfgan_quick_train_main.py --help      # to list all arguments
-python tfgan_quick_train_main.py --run_name=<run_name>
-```
+## Movie Trailer Download and Frame Extraction
+To download the corresponding movie trailers script, run ./data/download_ml-youtube.py. To extract frames from the movie trailers for the summarizer, run ./data/frame_extractor.py.
 
 ## Running the Summarizer training script
 
 ```
 # Configure summarizer_config.json with paths and parameters first
 python summarizer_main --train --eval --run_name=<some run name>
+# If doing mock training, i.e. no generator/discriminator module, specify --mock.
 ```
 
-## File Overview:
-- tfgan_quick_train_lib.py contains the discriminator and generator architecture. This was derived from the GAN tutorial provided in class.
-- tfgan_quick_train_main.py contains the running of the gan on a specific dataset of images. The path to the images is currently hard-coded in the files.
-- ./data/ contains a csv containing paths to the movielens movie posters. The download_dataset.py sript downloads the posters to a hard coded folder in the script
+## Directory Structure Overview:
+./data contains scripts to download and extract the movie posters and videos for the project.
+
+./DCGAN-Tensorflow contains the model structure and functions to run and uncoditional GAN to create movie posters.
+
+./summarizer contains the library for the summarizer architecture
+
+./generator contains prior, basic versions of unconditioned GANs. These were unsuccessful on the movie poster task and can be ignored. To run the GAN simply run the main file
+
