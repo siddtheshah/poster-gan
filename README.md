@@ -7,12 +7,12 @@ appropriate poser.
 
 To download the data and set up the GAN, enter the DCGAN-tensorflow folder, and follow the README steps there.
 
-
 ## Running the Summarizer training script
 
 ```
 # Configure summarizer_config.json with paths and parameters first
 python summarizer_main --train --eval --run_name=<some run name>
+# If doing mock training, i.e. no generator/discriminator module, specify --mock.
 ```
 
 ## File Overview:
