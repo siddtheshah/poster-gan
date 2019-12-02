@@ -27,3 +27,5 @@ python summarizer_main --train --eval --run_name=<some run name>
 
 ./generator contains prior, basic versions of unconditioned GANs. These were unsuccessful on the movie poster task and can be ignored. To run the GAN simply run the main file
 
+checkpoint_to_model.py contains script used to convert GAN checkpoint to model to be used for summarization.
+
