@@ -19,11 +19,11 @@ python summarizer_main --train --eval --run_name=<some run name>
 ```
 
 ## Directory Structure Overview:
--./data contains scripts to download and extract the movie posters and videos for the project.
+./data contains scripts to download and extract the movie posters and videos for the project.
 
-- ./DCGAN-Tensorflow contains the model structure and functions to run and uncoditional GAN to create movie posters.
+./DCGAN-Tensorflow contains the model structure and functions to run and uncoditional GAN to create movie posters.
 
-- ./summarizer contains the library for the summarizer architecture
+./summarizer contains the library for the summarizer architecture
 
--./generator contains prior, basic versions of unconditioned GANs. These were unsuccessful on the movie poster task and can be ignored. To run the GAN simply run the main file
+./generator contains prior, basic versions of unconditioned GANs. These were unsuccessful on the movie poster task and can be ignored. To run the GAN simply run the main file
 
