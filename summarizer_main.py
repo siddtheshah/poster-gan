@@ -85,11 +85,18 @@ def train_new_model(configs):
         with tf_v1.Session(graph=summary_graph) as sess:
             train_dataset, validation_dataset = \
                 summarizer.dataset.create_summary_dataset(configs["trailer_dir"], configs["poster_dir"], batch_size)
-            model = SummaryNetwork(configs["weight_decay"])
-            summarizer_loss = summarizer.eval.summarizer_loss(beta, generator_predict)
-            discriminator_loss = summarizer.eval.discriminator_loss(alpha, discriminator_predict, generator_predict)
+            if args.mock:
+                summarizer_loss = summarizer.eval.summarizer_loss_mock(beta, generator_predict)
+                discriminator_loss = summarizer.eval.discriminator_loss_mock(alpha, discriminator_predict, generator_predict)
+                combined_loss = summarizer.eval.combined_loss_mock(alpha, beta, gamma, generator_predict,
+                                                              discriminator_predict, 12)
+            else:
+                summarizer_loss = summarizer.eval.summarizer_loss(beta, generator_predict)
+                combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, generator_predict,
+                                                                   discriminator_predict, 12)
+
             color_loss = summarizer.eval.color_loss(gamma, 12)
-            combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, generator_predict, discriminator_predict, 12)
+            model = SummaryNetwork(configs["weight_decay"])
             model.compile(optimizer=tf_v1.keras.optimizers.Adam(),
                           loss=combined_loss, metrics=[summarizer_loss, color_loss])
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
