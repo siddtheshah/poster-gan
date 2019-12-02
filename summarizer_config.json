@@ -10,6 +10,6 @@
   "storage_dir": "/mnt/disks/new_space/summarizer",
   "poster_dir": "/mnt/disks/new_space/movie_poster_images",
   "trailer_dir": "/mnt/disks/new_space/ml_trailers_key_frame_features",
-  "weight_decay": 2e-5,
+  "weight_decay": 2e-3,
   "learning_rate": 1e-3
 }

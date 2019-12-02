@@ -20,11 +20,9 @@ summary_graph = summarizer.graph.summary_graph
 # Loss functions
 ##################################################
 
-
-
 # Discriminator loss is the discriminator's belief that the generated image is a poster.
 # It is weighted by alpha.
-def discriminator_loss(alpha, discriminator, generator):
+def discriminator_loss_mock(alpha, discriminator, generator):
     # with summary_graph.as_default() as graph:
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
@@ -35,13 +33,26 @@ def discriminator_loss(alpha, discriminator, generator):
 
 # Summarizer loss is the summarizer's ability to generate the poster that corresponds to the trailer.
 # It is weighted by beta.
-def summarizer_loss(beta, generator):
+def summarizer_loss_mock(beta, generator):
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
             # print(generator.graph)
             # print(summarizer_output.graph)
             y_synth = generator(summarizer_output)["output_1"]
             return beta * (1 - tf_v2.image.ssim(y_synth, y_truth, 255))
+    return loss
+
+def summarizer_loss(beta, generator):
+    def loss(summarizer_output, y_truth):
+        with summary_graph.as_default():
+            linearized = tf_v1.squeeze(summarizer_output)
+            slice = tf_v1.slice(linearized, 0, 100)
+            # print(generator.graph)
+            # print(summarizer_output.graph)
+            y_synth = generator(slice)["output_1"]
+            y_truth_compact = tf_v1.image.resize(y_truth, (64, 64))
+
+            return beta * (1 - tf_v2.image.ssim(y_synth, y_truth_compact, 255))
     return loss
 
 def color_loss(gamma, bins):
@@ -60,7 +71,7 @@ def color_loss(gamma, bins):
     return loss
 
 # Combination of both summarizer loss and discriminator loss
-def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
+def combined_loss_mock(alpha, beta, gamma, generator, discriminator, bins):
     def hists(img):
         img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
         hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
@@ -70,6 +81,7 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
+
             y_synth = generator(summarizer_output)["output_1"]
             fake_score = discriminator(y_synth)["output_1"]
 
@@ -82,8 +94,32 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 
     return loss
 
+def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
+    def hists(img):
+        img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
+        hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
+        hist = hist.astype(np.float32)*bins**3
+        # We can flatten the multi-dim array because KL Div doesn't care about neighborhoods.
+        return hist.flatten()
 
+    def loss(summarizer_output, y_truth):
+        with summary_graph.as_default():
 
+            linearized = tf_v1.squeeze(summarizer_output)
+            slice = tf_v1.slice(linearized, 0, 100)
+            y_synth = generator(slice)["output_1"]
+            y_truth_compact = tf_v1.image.resize(y_truth, (64, 64))
+
+            fake_score = discriminator(y_synth)["output_1"]
+
+            hist1 = tf_v1.numpy_function(hists, [summarizer_output], tf_v1.float32)
+            hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
+            color_loss = gamma*(tf_v1.reduce_sum(((hist1-hist2)**2)))
+            summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth, y_truth_compact, 255))
+            discriminator_loss = alpha*(1 - fake_score)
+            return summarizer_loss + discriminator_loss + color_loss
+
+    return loss
 # Other eval metrics.
 # TODO: Frechet Inception Distance
 
