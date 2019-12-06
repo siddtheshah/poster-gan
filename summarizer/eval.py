@@ -45,11 +45,12 @@ def summarizer_loss_mock(beta, generator):
 def summarizer_loss(beta, generator):
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
-            linearized = tf_v1.squeeze(summarizer_output)
-            slice = tf_v1.slice(linearized, 0, 100)
+            linearized = tf_v1.reshape(summarizer_output, [-1])
+            slice = tf_v1.expand_dims(tf_v1.slice(linearized, [0], [100]), 0)
+
             # print(generator.graph)
             # print(summarizer_output.graph)
-            y_synth = generator(slice)["output_1"]
+            y_synth = generator(slice)["out"]
             y_truth_compact = tf_v1.image.resize(y_truth, (64, 64))
 
             return beta * (1 - tf_v2.image.ssim(y_synth, y_truth_compact, 255))
@@ -105,18 +106,28 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
     def loss(summarizer_output, y_truth):
         with summary_graph.as_default():
 
-            linearized = tf_v1.squeeze(summarizer_output)
-            slice = tf_v1.slice(linearized, 0, 100)
-            y_synth = generator(slice)["output_1"]
-            y_truth_compact = tf_v1.image.resize(y_truth, (64, 64))
+            linearized = tf_v1.reshape(summarizer_output, [-1])
+            slice = tf_v1.expand_dims(tf_v1.slice(linearized, [0], [100]), 0)
+            pad = tf_v1.pad(slice, [[0, 59], [0, 0]])
+            y_synth = generator(pad)["out"]
+            y_synth_resize = tf_v1.image.resize(y_synth, (64, 64)) 
+            
+            y_synth_single = y_synth_resize[0, :, :, :]
+            y_truth = tf_v1.squeeze(y_truth[0, :, :, :])
+            
+            print(y_synth.shape)
+            print(y_truth.shape)
+            try:
+                fake_score = discriminator(y_synth)["out"]
+                fake_score_single = fake_score[0]
+            except:
+                fake_score_single = 1
 
-            fake_score = discriminator(y_synth)["output_1"]
-
-            hist1 = tf_v1.numpy_function(hists, [summarizer_output], tf_v1.float32)
+            hist1 = tf_v1.numpy_function(hists, [y_synth_single], tf_v1.float32)
             hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
             color_loss = gamma*(tf_v1.reduce_sum(((hist1-hist2)**2)))
-            summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth, y_truth_compact, 255))
-            discriminator_loss = alpha*(1 - fake_score)
+            summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth_single, y_truth, 255))
+            discriminator_loss = alpha*(1 - fake_score_single)
             return summarizer_loss + discriminator_loss + color_loss
 
     return loss
@@ -128,11 +139,11 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 #########################################################
 
 def show_training_plot(history, results_dir):
-    plt.plot(history.history['loss'])
     plt.plot(history.history['loss_1'])
-    plt.plot(history.history['val_loss'])
+    plt.plot(history.history['loss_2'])
     plt.plot(history.history['val_loss_1'])
-    plt.title('model accuracy')
+    plt.plot(history.history['val_loss_2'])
+    plt.title('Loss during Training')
     plt.ylabel('Weighted Loss')
     plt.xlabel('Epoch')
     plt.legend(['SSIM Train Loss', 'Color Train Loss', 'SSIM Validation Loss', 'Color Validation Loss'], loc='upper left')

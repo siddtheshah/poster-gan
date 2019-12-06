@@ -105,7 +105,7 @@ def train_new_model(configs):
             training_history = model.fit(train_dataset, epochs=configs["epochs"], verbose=2,
                       validation_data=validation_dataset, callbacks=callbacks_list)
             model.save(os.path.join(configs["storage_dir"], args.run_name, "model"), save_format='tf')
-            summarizer.eval.show_training_plot(training_history, results_dir)
+            # summarizer.eval.show_training_plot(training_history, results_dir)
             print("Model finished training.")
 
 def eval_model(configs):
