@@ -15,14 +15,15 @@ def tf_np_load(filepath):
     return tf_v1.convert_to_tensor(np.load(filepath).astype(np.float32))
 
 def make_summary_example(movieId, poster_dir, trailer_dir):
+
+    # REMEMBER: Tensorflow doesn't read in 0-256. Instead, it rescales to 0-1 for you!!
+    # That means the poster data is on the 0-1 scale!!
     image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
     image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
     image_decoded = tf_v1.image.convert_image_dtype(image_decoded, tf_v1.float32)
     image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
     poster = tf_v1.image.resize(image_decoded, [64, 64], name="poster_resize")
     # 64 x 64 image with 3 channels
-    # print(image.shape)
-    # poster = tf_v1.reshape(image, [64, 64, 3], name="poster_reshape")
 
     # Getting trailer
     trailer_path = trailer_dir + os.sep + movieId + '.npy'

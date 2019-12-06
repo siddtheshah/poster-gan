@@ -149,19 +149,24 @@ def show_training_plot(history, results_dir):
     plt.legend(['SSIM Train Loss', 'Color Train Loss', 'SSIM Validation Loss', 'Color Validation Loss'], loc='upper left')
     plt.savefig(os.path.join(results_dir, "training_plot.png"))
 
-def show_poster_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
+def show_poster_mock_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
     eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:10]
-    plt.figure()
+    print("Running Eval on ", eval_ids)
     rows = []
     for id in eval_ids:
         trailer_frames, poster = summarizer.dataset.make_summary_example(str(id), poster_dir, trailer_dir)
+        poster = poster*255
         stacked_frames = tf_v1.stack(trailer_frames, 0)
         batched = tf_v1.reshape(stacked_frames, [1, 20, 64, 64, 3])
         summary = sm(batched)
+        # print(summary)
+        linearized = tf_v1.reshape(summary, [-1])
+        slice = tf_v1.expand_dims(tf_v1.slice(linearized, [1000], [1100]), 0)
         generated_poster = generator(summary)
         single_prediction = tf_v1.reshape(generated_poster, [64, 64, 3])
         rows.append(np.hstack([poster, single_prediction]))
 
-    concat = np.vstack(rows)
+    concat = np.vstack(rows).astype(int)
+    plt.figure()
     plt.imshow(concat)
     plt.savefig(os.path.join(results_dir, "predictions.png"))

@@ -61,7 +61,7 @@ def train_new_model(configs):
         generator.save(generator_path, save_format='tf')
         discriminator = MockDiscriminator()
         discriminator._set_inputs(tf_v1.keras.Input(shape=(64, 64, 3)))
-        discriminator.compile(loss='mse', optimizer='rmsprop')
+#        discriminator.compile(loss='mse', optimizer='rmsprop')
         discriminator.save(discriminator_path, save_format='tf')
 
     # Compose the training step
@@ -113,13 +113,19 @@ def eval_model(configs):
     results_dir = os.path.join(run_dir, "results")
     save_dir = os.path.join(run_dir, "model")
     model = tf_v2.saved_model.load(save_dir)
+    generator_path = configs["generator_path"]
+    if args.mock:
+        generator_path = os.path.join(generator_path, "mock")
 
-    generator = tf_v2.saved_model.load(export_dir=os.path.join(configs["storage_dir"], "generator"))
+
+    generator = tf_v2.saved_model.load(export_dir=os.path.join(generator_path))
 
     # Show real poster vs predictions
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    summarizer.eval.show_poster_predict_comparison(model, generator, results_dir, configs["trailer_dir"], configs["poster_dir"])
+
+    if args.mock:
+        summarizer.eval.show_poster_mock_predict_comparison(model, generator, results_dir, configs["trailer_dir"], configs["poster_dir"])
 
     # Other evaluation metrics
 
