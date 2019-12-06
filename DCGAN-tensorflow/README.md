@@ -22,17 +22,16 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 
 ## Usage
 
-1. First you need to get the posters data, which can be downloaded from the dnn-movie-posters folder
 
-Get posters data
+1. First you need to get the posters data, which can be downloaded from the `dnn-movie-posters` folder
 
-Use flag -download to download the posters from Amazon (based on the URLs provided in MovieGenre.csv)
+  Use flag -download to download the posters from Amazon (based on the URLs provided in MovieGenre.csv)
 
-Use flag -resize to create smaller posters (30%, 40%, etc)
+  Use flag -resize to create smaller posters (30%, 40%, etc)
 
-Use parameter -min_year=1980 to filter out the oldest movies.
+  Use parameter -min_year=1980 to filter out the oldest movies.
 
-`python3 get_data.py -download -resize`
+  `python3 get_data.py -download -resize`
 
 2. Prepare dataset with the parameters you want:
 `python3 prepare_dcgan_dataset.py -min_year=1980 -exclude_genres=Animation,Comedy,Family -ratio=60`
