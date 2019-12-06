@@ -126,7 +126,8 @@ def eval_model(configs):
 
     if args.mock:
         summarizer.eval.show_poster_mock_predict_comparison(model, generator, results_dir, configs["trailer_dir"], configs["poster_dir"])
-
+    else:
+        summarizer.eval.show_poster_predict_comparison(model, generator, results_dir, configs["trailer_dir"], configs["poster_dir"])
     # Other evaluation metrics
 
 def main():
