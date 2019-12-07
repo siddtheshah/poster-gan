@@ -140,14 +140,12 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 #########################################################
 
 def show_training_plot(history, results_dir):
-    plt.plot(history.history['loss_1'])
-    plt.plot(history.history['loss_2'])
-    plt.plot(history.history['val_loss_1'])
-    plt.plot(history.history['val_loss_2'])
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
     plt.title('Loss during Training')
-    plt.ylabel('Weighted Loss')
+    plt.ylabel('MSE Loss')
     plt.xlabel('Epoch')
-    plt.legend(['SSIM Train Loss', 'Color Train Loss', 'SSIM Validation Loss', 'Color Validation Loss'], loc='upper left')
+    plt.legend(['Train Loss', 'Validation Loss'], loc='upper left')
     plt.savefig(os.path.join(results_dir, "training_plot.png"))
 
 def show_poster_mock_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
@@ -163,7 +161,7 @@ def show_poster_mock_predict_comparison(sm, generator, results_dir, trailer_dir,
         generated_poster = generator(summary)
         single_prediction = tf_v1.reshape(generated_poster, [64, 64, 3])
         rows.append(np.hstack([poster, single_prediction]))
-
+    print(rows)
     concat = np.vstack(rows).astype(int)
     plt.figure()
     plt.imshow(concat)

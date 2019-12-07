@@ -4,12 +4,11 @@
   "gamma": 100,
   "generator_path": "I:\\ml_storage\\gan\\generator",
   "discriminator_path": "I:\\ml_storage\\gan\\discriminator",
-  "epochs": 5,
+  "epochs": 20,
   "batch_size": 5,
-  "validation_folds": 5,
   "storage_dir": "I:\\ml_storage\\summarizer",
   "poster_dir": "data\\movie_poster_images",
   "trailer_dir": "data\\movie_trailers",
-  "weight_decay": 2e-3,
-  "learning_rate": 1e-3
+  "weight_decay": 5e-3,
+  "learning_rate": 2e-3
 }

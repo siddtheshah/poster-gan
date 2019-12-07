@@ -97,15 +97,15 @@ def train_new_model(configs):
 
             color_loss = summarizer.eval.color_loss(gamma, 12)
             model = SummaryNetwork(configs["weight_decay"])
-            model.compile(optimizer=tf_v1.keras.optimizers.Adam(),
-                          loss=combined_loss, metrics=[summarizer_loss, color_loss])
+            model.compile(optimizer=tf_v1.keras.optimizers.Adam(learning_rate=configs["learning_rate"]),
+                          loss='mse', metrics=[summarizer_loss, color_loss, 'mse'])
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
                                                                save_best_only=True, verbose=1, mode='min')
             callbacks_list = [checkpoint]
             training_history = model.fit(train_dataset, epochs=configs["epochs"], verbose=2,
                       validation_data=validation_dataset, callbacks=callbacks_list)
             model.save(os.path.join(configs["storage_dir"], args.run_name, "model"), save_format='tf')
-            # summarizer.eval.show_training_plot(training_history, results_dir)
+            summarizer.eval.show_training_plot(training_history, results_dir)
             print("Model finished training.")
 
 def eval_model(configs):
