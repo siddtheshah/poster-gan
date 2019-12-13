@@ -11,7 +11,9 @@ from time import gmtime, strftime
 import numpy as np
 import scipy.misc
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+
+# from tensorflow.compat.v1.python.framework import ops
+# import tensorflow.compat.v1.contrib.slim as slim
 from six.moves import xrange
 
 pp = pprint.PrettyPrinter()
@@ -19,8 +21,9 @@ pp = pprint.PrettyPrinter()
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
 def show_all_variables():
-  model_vars = tf.trainable_variables()
-  slim.model_analyzer.analyze_vars(model_vars, print_info=True)
+    pass
+  # model_vars = tf.trainable_variables()
+  # slim.model_analyzer.analyze_vars(model_vars, print_info=True)
 
 def get_image(image_path, input_height, input_width,
               resize_height=64, resize_width=64,
@@ -186,14 +189,7 @@ def visualize(sess, dcgan, config, batch_size, option):
       for kdx, z in enumerate(z_sample):
         z[idx] = values[kdx]
 
-      if config.dataset == "mnist":
-        y = np.random.choice(10, batch_size)
-        y_one_hot = np.zeros((batch_size, 10))
-        y_one_hot[np.arange(batch_size), y] = 1
-
-        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample, dcgan.y: y_one_hot})
-      else:
-        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
+      samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
 
       save_images(samples, [config.grid_height, config.grid_width], './samples/test_arange_%s.png' % (idx))
   elif option == 2:
@@ -206,14 +202,7 @@ def visualize(sess, dcgan, config, batch_size, option):
       for kdx, z in enumerate(z_sample):
         z[idx] = values[kdx]
 
-      if config.dataset == "mnist":
-        y = np.random.choice(10, batch_size)
-        y_one_hot = np.zeros((batch_size, 10))
-        y_one_hot[np.arange(batch_size), y] = 1
-
-        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample, dcgan.y: y_one_hot})
-      else:
-        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
+      samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
 
       try:
         make_gif(samples, './samples/test_gif_%s.gif' % (idx))

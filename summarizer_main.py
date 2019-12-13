@@ -133,7 +133,7 @@ def eval_model(configs):
     # Other evaluation metrics
 
 def main():
-    with open('summarizer_config.json') as config_file:
+    with open('config.json') as config_file:
         configs = json.load(config_file)
         # test_gan_io_2(configs)
 

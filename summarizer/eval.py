@@ -108,9 +108,9 @@ def combined_loss(alpha, beta, gamma, generator, discriminator, bins):
 
             linearized = tf_v1.reshape(summarizer_output, [-1])
             # We take a slice from the middle because the edges are padded.
-            slice = tf_v1.expand_dims(tf_v1.slice(linearized, [1000], [1100]), 0)
+            slice = tf_v1.expand_dims(tf_v1.slice(linearized, [1000], [100]), 0)
             pad = tf_v1.pad(slice, [[0, 59], [0, 0]])
-            y_synth = generator(pad)["out"]
+            y_synth = generator(pad*10)["out"]
             y_synth_resize = tf_v1.image.resize(y_synth, (64, 64)) 
             
             y_synth_single = y_synth_resize[0, :, :, :]
@@ -169,7 +169,7 @@ def show_poster_mock_predict_comparison(sm, generator, results_dir, trailer_dir,
 
 
 def show_poster_predict_comparison(sm, generator, results_dir, trailer_dir, poster_dir):
-    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:10]
+    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:5]
     print("Running Eval on ", eval_ids)
     rows = []
     for id in eval_ids:
@@ -178,13 +178,21 @@ def show_poster_predict_comparison(sm, generator, results_dir, trailer_dir, post
         stacked_frames = tf_v1.stack(trailer_frames, 0)
         batched = tf_v1.reshape(stacked_frames, [1, 20, 64, 64, 3])
         summary = sm(batched)
-        # print(summary)
+        
         linearized = tf_v1.reshape(summary, [-1])
-        slice = tf_v1.expand_dims(tf_v1.slice(linearized, [1000], [1100]), 0)
-        pad = tf_v1.pad(slice, [[0, 59], [0, 0]])
+        cut = tf_v1.slice(linearized, [1000], [100])
+        slice = tf_v1.expand_dims(cut, 0)
+        
+        tile = tf_v1.tile(slice, [60, 1])
+        # pad = tf_v1.pad(slice*20, [[0, 59], [0, 0]])
+        # pad = tile + tf_v1.random.uniform([60, 100], maxval=.5)
+        pad = tf_v1.random.uniform([60, 100], minval=.5, maxval=1)
+        # print(pad)
         y_synth = generator(pad)["out"]
+        y_synth = (y_synth + 1)*127.5
+        print(y_synth[-1, :, :, :])
         y_synth_resize = tf_v1.image.resize(y_synth, (64, 64))
-
+        
         generated_poster = y_synth_resize[0, :, :, :]
         single_prediction = tf_v1.reshape(generated_poster, [64, 64, 3])
         rows.append(np.hstack([poster, single_prediction]))
