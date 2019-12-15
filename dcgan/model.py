@@ -84,11 +84,7 @@ class DCGAN(object):
         self.results_dir = results_dir
 
         self.data = glob(os.path.join(self.data_dir, self.input_fname_pattern))
-        imreadImg = imread(self.data[0])
-        if len(imreadImg.shape) >= 3:  # check if image is a non-grayscale image by checking channel number
-            self.c_dim = imread(self.data[0]).shape[-1]
-        else:
-            self.c_dim = 1
+        self.c_dim = 3
 
         if len(self.data) < self.batch_size:
             raise Exception("[!] Entire dataset size is less than the configured batch_size")
