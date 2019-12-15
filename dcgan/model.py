@@ -9,7 +9,7 @@ from dcgan.ops import *
 from dcgan.utils import *
 
 import tensorflow.compat.v1 as tf_v1
-
+import imghdr
 
 def conv_out_size_same(size, stride):
     return int(math.ceil(float(size) / float(stride)))
@@ -172,7 +172,7 @@ class DCGAN(object):
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_num, self.z_dim))
 
-        sample_files = self.data[0:self.sample_num]
+        sample_files = [file for file in self.data[0:self.sample_num] if imghdr.what(file) == 'jpeg']
         sample = [
             get_image(sample_file,
                       input_height=self.input_height,
