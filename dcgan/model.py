@@ -17,9 +17,9 @@ def conv_out_size_same(size, stride):
 
 class DCGAN(object):
     def __init__(self, sess, input_height=108, input_width=108, crop=True,
-                 batch_size=32, sample_num=64, output_height=64, output_width=64,
+                 batch_size=8, sample_num=32, output_height=64, output_width=64,
                  grid_height=8, grid_width=8,
-                 y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
+                 y_dim=None, z_dim=None, gf_dim=32, df_dim=32,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, data_dir=None,
                  input_fname_pattern='*.jpg', save_dir=None, results_dir=None, sample_rate=None,
                  nbr_of_layers_d=5, nbr_of_layers_g=5, use_checkpoints=True):
@@ -428,42 +428,6 @@ class DCGAN(object):
 
                 return tf_v1.nn.sigmoid(deconv2d(h2, [self.batch_size, s_h, s_w, self.c_dim], name='g_h3'))
 
-    def load_mnist(self):
-        data_dir = self.data_dir
-
-        fd = open(os.path.join(data_dir, 'train-images-idx3-ubyte'))
-        loaded = np.fromfile(file=fd, dtype=np.uint8)
-        trX = loaded[16:].reshape((60000, 28, 28, 1)).astype(np.float)
-
-        fd = open(os.path.join(data_dir, 'train-labels-idx1-ubyte'))
-        loaded = np.fromfile(file=fd, dtype=np.uint8)
-        trY = loaded[8:].reshape((60000)).astype(np.float)
-
-        fd = open(os.path.join(data_dir, 't10k-images-idx3-ubyte'))
-        loaded = np.fromfile(file=fd, dtype=np.uint8)
-        teX = loaded[16:].reshape((10000, 28, 28, 1)).astype(np.float)
-
-        fd = open(os.path.join(data_dir, 't10k-labels-idx1-ubyte'))
-        loaded = np.fromfile(file=fd, dtype=np.uint8)
-        teY = loaded[8:].reshape((10000)).astype(np.float)
-
-        trY = np.asarray(trY)
-        teY = np.asarray(teY)
-
-        X = np.concatenate((trX, teX), axis=0)
-        y = np.concatenate((trY, teY), axis=0).astype(np.int)
-
-        seed = 547
-        np.random.seed(seed)
-        np.random.shuffle(X)
-        np.random.seed(seed)
-        np.random.shuffle(y)
-
-        y_vec = np.zeros((len(y), self.y_dim), dtype=np.float)
-        for i, label in enumerate(y):
-            y_vec[i, y[i]] = 1.0
-
-        return X / 255., y_vec
 
     def save(self, save_dir, step):
         model_name = "DCGAN.model"
@@ -474,6 +438,17 @@ class DCGAN(object):
         self.saver.save(self.sess,
                         os.path.join(save_dir, model_name),
                         global_step=step)
+
+    def export(self, export_dir):
+        tf_v1.saved_model.simple_save(self.sess,
+                                      os.path.join(export_dir, "generator"),
+                                      inputs={"generator_input": self.z},
+                                      outputs={"generator_output": self.G})
+
+        tf_v1.saved_model.simple_save(self.sess,
+                                      os.path.join(export_dir, "discriminator"),
+                                      inputs={"discriminator_input": self.inputs},
+                                      outputs={"discriminator_output": self.D_logits})
 
     def load(self, save_dir):
         import re

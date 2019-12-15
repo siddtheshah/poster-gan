@@ -1,5 +1,5 @@
 from dcgan.model import DCGAN
-from dcgan.utils import pp, visualize, show_all_variables
+from dcgan.utils import pp, visualize, show_all_variables, visualize2
 
 import io
 import os
@@ -10,6 +10,7 @@ from os.path import isfile, join
 from PIL import Image
 
 import tensorflow.compat.v1 as tf_v1
+import tensorflow.compat.v2 as tf_v2
 import numpy as np
 
 import json
@@ -19,7 +20,7 @@ flags = tf_v1.app.flags
 flags.DEFINE_boolean("train", False, "Train a new model")
 flags.DEFINE_boolean("eval", False, "Run eval on a model")
 flags.DEFINE_string("run_name", None, "Run name (Required)")
-flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
+flags.DEFINE_integer("epoch", 20, "Epoch to train [25]")
 flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]")
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_float("train_size", np.inf, "The size of train images [np.inf]")
@@ -36,11 +37,11 @@ flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of
 flags.DEFINE_integer("sample_rate", None, "If == 5, it will take a sample image every 5 iterations")
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
-flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
 flags.DEFINE_boolean("use_checkpoints", True, "Save and load checkpoints")
+flags.DEFINE_integer("z_dim", 1024, "Number of images to generate during test. [10]")
 FLAGS = flags.FLAGS
 
-tf_v1.disable_eager_execution()
+# tf_v1.disable_eager_execution()
 
 if FLAGS.run_name is None:
     raise Exception('Run name is required!')
@@ -65,6 +66,7 @@ with open('config.json') as config_file:
 data_dir = configs["poster_dir"]
 run_dir = os.path.join(configs["gan_path"], FLAGS.run_name)
 save_dir = os.path.join(run_dir, "checkpoints")
+export_dir = os.path.join(run_dir, "export")
 results_dir = os.path.join(run_dir, "results")
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
@@ -100,45 +102,49 @@ def main(_):
     run_config = tf_v1.ConfigProto()
     run_config.gpu_options.allow_growth = True
 
-    with tf_v1.Session(config=run_config) as sess:
-        dcgan = DCGAN(
-            sess,
-            input_width=input_width,
-            input_height=input_height,
-            output_width=output_width,
-            output_height=output_height,
-            grid_height=FLAGS.grid_height,
-            grid_width=FLAGS.grid_width,
-            batch_size=batch_size,
-            sample_num=batch_size,
-            z_dim=FLAGS.generate_test_images,
-            data_dir=data_dir,
-            input_fname_pattern=FLAGS.input_fname_pattern,
-            crop=FLAGS.crop,
-            save_dir=save_dir,
-            results_dir=results_dir,
-            sample_rate=FLAGS.sample_rate,
-            nbr_of_layers_d=5,
-            nbr_of_layers_g=5,
-            use_checkpoints=FLAGS.use_checkpoints)
+    if FLAGS.train:
+        with tf_v1.Session(config=run_config) as sess:
+            dcgan = DCGAN(
+                sess,
+                input_width=input_width,
+                input_height=input_height,
+                output_width=output_width,
+                output_height=output_height,
+                grid_height=FLAGS.grid_height,
+                grid_width=FLAGS.grid_width,
+                batch_size=batch_size,
+                sample_num=batch_size,
+                data_dir=data_dir,
+                input_fname_pattern=FLAGS.input_fname_pattern,
+                crop=FLAGS.crop,
+                save_dir=save_dir,
+                results_dir=results_dir,
+                sample_rate=FLAGS.sample_rate,
+                z_dim=FLAGS.z_dim,
+                nbr_of_layers_d=5,
+                nbr_of_layers_g=5,
+                use_checkpoints=FLAGS.use_checkpoints)
 
-        show_all_variables()
+            show_all_variables()
 
-        if FLAGS.train:
             dcgan.train(FLAGS)
-        if FLAGS.eval:
-            if not dcgan.load(FLAGS.save_dir)[0]:
-                raise Exception("[!] Train a model first, then run test mode")
+            dcgan.export(export_dir)
 
-            # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
-            #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
-            #                 [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
-            #                 [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
-            #                 [dcgan.h4_w, dcgan.h4_b, None])
+    if FLAGS.eval:
+        generator_path = os.path.join(export_dir, "generator")
+        if not os.path.exists(generator_path):
+            raise Exception("[!] Train a model first, then run test mode")
 
-            # Below is codes for visualization
-            OPTION = 1
-            visualize(sess, dcgan, FLAGS, batch_size, OPTION)
+        # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
+        #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
+        #                 [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
+        #                 [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
+        #                 [dcgan.h4_w, dcgan.h4_b, None])
+
+        # Below is codes for visualization
+        OPTION = 0
+
+        visualize2(generator_path, FLAGS, batch_size, results_dir)
 
 
 if __name__ == '__main__':

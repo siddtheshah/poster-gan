@@ -8,9 +8,11 @@ import pprint
 import random
 from time import gmtime, strftime
 
+import os
 import numpy as np
 import scipy.misc
-import tensorflow as tf
+import tensorflow.compat.v1 as tf_v1
+import tensorflow.compat.v2 as tf_v2
 
 # from tensorflow.compat.v1.python.framework import ops
 # import tensorflow.compat.v1.contrib.slim as slim
@@ -19,6 +21,8 @@ from six.moves import xrange
 pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
+
+tf_v1.enable_eager_execution()
 
 def show_all_variables():
     pass
@@ -172,7 +176,16 @@ def make_gif(images, fname, duration=2, true_image=False):
   clip = mpy.VideoClip(make_frame, duration=duration)
   clip.write_gif(fname, fps = len(images) / duration)
 
-def visualize(sess, dcgan, config, batch_size, option):
+def visualize2(generator_path, config, batch_size, results_dir):
+    generator = tf_v2.saved_model.load(export_dir=generator_path)
+    generator_predict = generator.signatures["serving_default"]
+    z_sample = np.random.uniform(-0.5, 0.5, size=(batch_size, config.z_dim))
+    z_sample = tf_v1.cast(tf_v1.constant(z_sample), tf_v1.float32)
+    samples = generator_predict(z_sample)["generator_output"]
+    result_file = os.path.join(results_dir, "samples.png")
+    save_images(samples, [config.grid_height, config.grid_width], result_file)
+
+def visualize(sess, dcgan, config, batch_size, option, results_dir):
   print('dcgan.z_dim:', dcgan.z_dim)
   print('xrange(dcgan.z_dim):', xrange(dcgan.z_dim))
   print('config.generate_test_images:', config.generate_test_images)
@@ -180,7 +193,8 @@ def visualize(sess, dcgan, config, batch_size, option):
   if option == 0:
     z_sample = np.random.uniform(-0.5, 0.5, size=(batch_size, dcgan.z_dim))
     samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-    save_images(samples, [config.grid_height, config.grid_width], './samples/test_%s.png' % strftime("%Y-%m-%d-%H-%M-%S", gmtime()))
+    result_file = os.path.join(results_dir, "samples.png")
+    save_images(samples, [config.grid_height, config.grid_width], result_file)
   elif option == 1:
     values = np.arange(0, 1, 1./batch_size)
     for idx in xrange(config.generate_test_images):
@@ -190,8 +204,8 @@ def visualize(sess, dcgan, config, batch_size, option):
         z[idx] = values[kdx]
 
       samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-
-      save_images(samples, [config.grid_height, config.grid_width], './samples/test_arange_%s.png' % (idx))
+      result_file = os.path.join(results_dir, "variation.png")
+      save_images(samples, [config.grid_height, config.grid_width], result_file)
   elif option == 2:
     values = np.arange(0, 1, 1./batch_size)
     for idx in [random.randint(0, dcgan.z_dim - 1) for _ in xrange(dcgan.z_dim)]:
@@ -207,7 +221,7 @@ def visualize(sess, dcgan, config, batch_size, option):
       try:
         make_gif(samples, './samples/test_gif_%s.gif' % (idx))
       except:
-        save_images(samples, [config.grid_height, config.grid_width], './samples/test_%s.png' % strftime("%Y-%m-%d-%H-%M-%S", gmtime()))
+        save_images(samples, [config.grid_height, config.grid_width], results_dir)
   elif option == 3:
     values = np.arange(0, 1, 1./batch_size)
     for idx in xrange(dcgan.z_dim):
