@@ -5,11 +5,12 @@
   "gan_path": "I:\\ml_storage\\gan",
   "generator_path": "I:\\ml_storage\\gan\\generator",
   "discriminator_path": "I:\\ml_storage\\gan\\discriminator",
-  "epochs": 20,
-  "batch_size": 5,
+  "epochs": 1,
+  "batch_size": 1,
   "storage_dir": "I:\\ml_storage\\summarizer",
   "poster_dir": "I:\\ml_storage\\movie_poster_images",
   "trailer_dir": "data\\movie_trailers",
   "weight_decay": 5e-3,
-  "learning_rate": 2e-3
+  "learning_rate": 2e-3,
+  "noise_dim": 1024
 }
