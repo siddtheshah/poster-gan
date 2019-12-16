@@ -20,7 +20,7 @@ flags = tf_v1.app.flags
 flags.DEFINE_boolean("train", False, "Train a new model")
 flags.DEFINE_boolean("eval", False, "Run eval on a model")
 flags.DEFINE_string("run_name", None, "Run name (Required)")
-flags.DEFINE_integer("epoch", 2, "Epoch to train [25]")
+flags.DEFINE_integer("epoch", 40, "Epoch to train [25]")
 flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]")
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_float("train_size", np.inf, "The size of train images [np.inf]")

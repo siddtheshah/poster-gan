@@ -177,11 +177,12 @@ class DCGAN(object):
                       resize_width=self.output_width,
                       crop=self.crop,
                       grayscale=self.grayscale) for sample_file in sample_files]
-
-        if (self.grayscale):
-            sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
-        else:
-            sample_inputs = np.array(sample).astype(np.float32)
+        sample = [s for s in sample if s.shape[0] == self.input_height and s.shape[1] == self.input_width]
+        all_images = []
+        for s in sample:
+            if len(s.shape) >= self.c_dim:
+                all_images.append(np.array(s).astype(np.float32))
+        sample_inputs = np.stack(all_images, 0)
 
         counter = 1
         start_time = time.time()
@@ -199,6 +200,7 @@ class DCGAN(object):
 
             for idx in xrange(0, batch_idxs):
                 batch_files = self.data[idx * self.batch_size:(idx + 1) * self.batch_size]
+                batch_files = [b for b in batch_files if imghdr.what(b) == "jpeg"]
                 batch = [
                     get_image(batch_file,
                               input_height=self.input_height,
@@ -207,6 +209,17 @@ class DCGAN(object):
                               resize_width=self.output_width,
                               crop=self.crop,
                               grayscale=self.grayscale) for batch_file in batch_files]
+                all_images = []
+                for b in batch:
+                    if len(b.shape) >= self.c_dim:
+                        if b.shape[0] == self.input_height and b.shape[1] == self.input_width:
+                            all_images.append(b)
+                if len(all_images) < self.batch_size:
+                    more_needed = self.batch_size - len(all_images)
+                    if more_needed > self.batch_size/2:
+                        continue # data is way too corrupt
+                    all_images = all_images + all_images[:more_needed]
+                batch = np.stack(all_images, 0)
 
                 for i in range(len(batch)):
                     if len(batch[i].shape) != 3:
