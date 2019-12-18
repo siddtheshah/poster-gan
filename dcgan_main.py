@@ -20,7 +20,7 @@ flags = tf_v1.app.flags
 flags.DEFINE_boolean("train", False, "Train a new model")
 flags.DEFINE_boolean("eval", False, "Run eval on a model")
 flags.DEFINE_string("run_name", None, "Run name (Required)")
-flags.DEFINE_integer("epoch", 40, "Epoch to train [25]")
+flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
 flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]")
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_float("train_size", np.inf, "The size of train images [np.inf]")
@@ -134,6 +134,8 @@ def main(_):
         generator_path = os.path.join(export_dir, "generator")
         if not os.path.exists(generator_path):
             raise Exception("[!] Train a model first, then run test mode")
+
+        print("Generator Path: ", generator_path)
 
         # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
         #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],

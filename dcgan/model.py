@@ -275,7 +275,7 @@ class DCGAN(object):
                 if self.use_checkpoints and np.mod(counter, 500) == 2:
                     self.save(self.save_dir, counter)
 
-                if (np.mod(counter, 5000)) == 2500:
+                if (np.mod(counter, 30000)) == 2500:
                     self.export(os.path.join(self.save_dir, "intermediate" + str(counter)))
 
     def discriminator(self, image, y=None, reuse=False):

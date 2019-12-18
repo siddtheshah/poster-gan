@@ -87,8 +87,10 @@ def combined_loss_mock(alpha, beta, gamma, generator, discriminator, bins):
 
     return loss
 
-def combined_loss(alpha, beta, gamma, discriminator, bins):
+def combined_loss(alpha, beta, gamma, delta, discriminator, bins):
     def hists(img):
+        img = img.astype(int)
+        #print(img)
         img_range = np.array([[0, 256], [0, 256], [0, 256]], dtype='float')
         hist = np.histogramdd(np.reshape(img, (-1, 3)), bins=bins, density=True, range=img_range)[0]
         hist = hist.astype(np.float32) * bins ** 3
@@ -97,6 +99,7 @@ def combined_loss(alpha, beta, gamma, discriminator, bins):
 
     def loss(y_synth, y_truth):
         y_synth = tf_v1.image.resize(y_synth, (64, 64))
+        y_truth = (y_truth + 1.0)*127.5
         y_synth_full = tf_v1.image.resize(y_synth, (256, 256))
 
         y_truth = tf_v1.image.resize(y_truth, (64, 64))
@@ -108,9 +111,13 @@ def combined_loss(alpha, beta, gamma, discriminator, bins):
         hist1 = tf_v1.numpy_function(hists, [y_synth], tf_v1.float32)
         hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
         color_loss = gamma * (tf_v1.reduce_sum(((hist1 - hist2) ** 2)))
+
         summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth, y_truth, 255))
-        discriminator_loss = alpha * (1 - tf_v1.nn.tanh(fake_score))
-        return summarizer_loss + discriminator_loss + color_loss
+        discriminator_loss = alpha * (tf_v1.nn.tanh(fake_score))
+
+        mse_loss = tf_v1.losses.mean_squared_error(y_synth, y_truth)
+        nmse_loss = delta * mse_loss/(tf_v1.math.reduce_mean(y_synth) * tf_v1.math.reduce_mean(y_truth))
+        return summarizer_loss + discriminator_loss + color_loss + nmse_loss
 
     return loss
 # Other eval metrics.
@@ -135,24 +142,55 @@ def show_poster_predict_comparison(summarizer_predict, cap, results_dir, trailer
     rows = []
     for i, id in enumerate(eval_ids):
         trailer_frames, poster = summarizer.dataset.make_summary_example(str(id), poster_dir, trailer_dir)
-        poster = poster*255
+        # poster = poster*255
         stacked_frames = tf_v1.stack(trailer_frames, 0)
         single_batch = tf_v1.expand_dims(stacked_frames, 0)
 
         sm_output = summarizer_predict(single_batch)["output_1"]
+        # sm_output = tf_v1.random.uniform((1, 1024), minval=-.5, maxval=.5)
+
         output = cap(sm_output)
 
         y_synth = output
 
-        y_synth = (y_synth + 1)*127.5
+        # y_synth = (y_synth + 1)*127.5
+        y_synth = (y_synth + 1)/2
 
-        y_synth_resize = tf_v1.image.resize(y_synth, (64, 64))
-
-        prediction = tf_v1.squeeze(y_synth_resize)
+        prediction = tf_v1.squeeze(y_synth)
         # print(prediction)
-        rows.append(np.hstack([poster, prediction[0]]))
+        rows.append(np.hstack([poster, prediction]))
 
-    concat = np.vstack(rows).astype(int)
+    concat = np.vstack(rows) #.astype(int)
     plt.figure()
     plt.imshow(concat)
     plt.savefig(os.path.join(results_dir, "predictions.png"))
+
+def debug_show(cap, results_dir, trailer_dir, poster_dir):
+    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:5]
+    print("Running Eval on ", eval_ids)
+    rows = []
+    for i, id in enumerate(eval_ids):
+        trailer_frames, poster = summarizer.dataset.make_summary_example(str(id), poster_dir, trailer_dir)
+        # poster = poster*255
+        stacked_frames = tf_v1.stack(trailer_frames, 0)
+        single_batch = tf_v1.expand_dims(stacked_frames, 0)
+
+        # sm_output = summarizer_predict(single_batch)["output_1"]
+        sm_output = tf_v1.random.uniform((1, 1024), minval=-.5, maxval=.5)
+
+        output = cap(sm_output)
+
+        y_synth = output
+
+        # y_synth = (y_synth + 1)*127.5
+        y_synth = (y_synth + 1)/2
+
+        # y_synth_resize = tf_v1.image.resize(y_synth, (64, 64))
+
+        prediction = y_synth
+        rows.append(np.hstack([prediction[i] for i in range(prediction.shape[0])]))
+
+    concat = np.vstack(rows) #.astype(int)
+    plt.figure()
+    plt.imshow(concat)
+    plt.savefig(os.path.join(results_dir, "debug.png"))

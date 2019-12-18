@@ -71,6 +71,7 @@ def train_new_model(configs):
     alpha = configs["alpha"]
     beta = configs["beta"]
     gamma = configs["gamma"]
+    delta = configs["delta"]
 
     run_dir = os.path.join(configs["storage_dir"], args.run_name)
     save_dir = os.path.join(run_dir, "model")
@@ -107,7 +108,7 @@ def train_new_model(configs):
                 cap = summarizer.network.make_mock_cap()
             else:
                 summarizer_loss = summarizer.eval.summarizer_loss(beta)
-                combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, discriminator_predict, 12)
+                combined_loss = summarizer.eval.combined_loss(alpha, beta, gamma, delta, discriminator_predict, 12)
                 cap = summarizer.network.make_gan_cap(generator_predict)
 
             input = tf_v1.keras.layers.Input(shape=(20, 64, 64, 3))
@@ -117,7 +118,7 @@ def train_new_model(configs):
             model = tf_v1.keras.Model(inputs=input, outputs=output)
 
             color_loss = summarizer.eval.color_loss(gamma, 12)
-            model.compile(optimizer=tf_v1.keras.optimizers.Adam(learning_rate=configs["learning_rate"]),
+            model.compile(optimizer=tf_v1.keras.optimizers.SGD(learning_rate=configs["learning_rate"]),
                           loss=combined_loss, metrics=[summarizer_loss, color_loss],
                           experimental_run_tf_function=False)
             checkpoint = tf_v1.keras.callbacks.ModelCheckpoint(os.path.join(save_dir, "model"), monitor='val_loss',
@@ -140,6 +141,7 @@ def eval_model(configs):
         os.makedirs(results_dir)
 
     generator_path = configs["generator_path"]
+    print("Generator Path: ", generator_path)
     if args.mock:
         generator_path = os.path.join(generator_path, "mock")
     generator = tf_v2.saved_model.load(export_dir=generator_path)
@@ -152,7 +154,10 @@ def eval_model(configs):
         cap = summarizer.network.make_gan_cap(generator_predict)
 
     summarizer_predict = summarizer_model.signatures["serving_default"]
+    tf_v1.global_variables_initializer()
+    # summarizer.eval.debug_show(cap, results_dir, configs["trailer_dir"], configs["poster_dir"])
     summarizer.eval.show_poster_predict_comparison(summarizer_predict, cap , results_dir, configs["trailer_dir"], configs["poster_dir"])
+
     # Other evaluation metrics
 
 def main():

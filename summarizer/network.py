@@ -29,16 +29,18 @@ def make_gan_cap(generator_predict):
         print(x.shape)
         # x = self.generator_predict(x)["generator_output"]
 
-        x = tf_v1.py_function(call_generator, [x], tf_v1.float32) # This works, but makes model unsaveable
+        x = tf_v1.py_function(call_generator, [x], tf_v1.float32)
         # x = self.generator_predict(x)["generator_output"]
+        x = tf_v1.reshape(x, [-1, 256, 256, 3])
 
+        x = tf_v1.image.resize(x, (64, 64))
         x = tf_v1.reshape(x, [-1, 64, 64, 3])
         return x
 
     return gan_cap
 
 class SummaryNetwork(tf_v1.keras.Model):
-    def __init__(self, weight_decay, batch_size, filters=40, z_dim=None):
+    def __init__(self, weight_decay, batch_size, filters=60, z_dim=None):
         super(SummaryNetwork, self).__init__()
         self.batch_size = batch_size
         self.z_dim = z_dim
@@ -86,25 +88,18 @@ class SummaryNetwork(tf_v1.keras.Model):
                                               kernel_initializer='random_uniform',
                                               bias_initializer='zeros')
         if self.z_dim:
-            self.ln_1 = tf_v1.keras.layers.Dense(z_dim, activation='tanh')
-
-    def call_generator(self, input):
-        # return tf_v1.zeros([input.shape[0], 64, 64, 3])
-        return self.generator_predict(input)["generator_output"]
+            self.ln_1 = tf_v1.keras.layers.Dense(z_dim, activation='tanh', bias_initializer='random_uniform')
 
     def call(self, inputs):
-        print(inputs.shape)
         x = self.cl_1(inputs)
         x = self.bn_1(x)
         x = self.cl_2(x)
         x = self.bn_2(x)
         x = self.cl_3(x)
         x = self.bn_3(x)
-        x = self.cl_4(x)
-        x = self.bn_4(x)
-        print(x.shape)
+        # x = self.cl_4(x)
+        # x = self.bn_4(x)
         x = self.conv(x)
-        print(x.shape)
         if self.z_dim:
             x = tf_v1.reshape(x, [-1, 62 * 62 * 3])
             x = self.ln_1(x)
