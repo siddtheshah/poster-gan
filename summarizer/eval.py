@@ -4,6 +4,7 @@ Eval metrics library
 
 import summarizer.dataset
 import summarizer.graph
+import summarizer.wasserstein
 
 import tensorflow.compat.v1 as tf_v1
 import tensorflow.compat.v2 as tf_v2
@@ -110,7 +111,9 @@ def combined_loss(alpha, beta, gamma, delta, discriminator, bins):
 
         hist1 = tf_v1.numpy_function(hists, [y_synth], tf_v1.float32)
         hist2 = tf_v1.numpy_function(hists, [y_truth], tf_v1.float32)
-        color_loss = gamma * (tf_v1.reduce_sum(((hist1 - hist2) ** 2)))
+        wasserstein = summarizer.wasserstein.Wasserstein(1, hist1, hist2)
+        color_loss = gamma*wasserstein.dist(C=.1, nsteps=10, reset=True)
+        # color_loss = gamma * (tf_v1.reduce_sum(((hist1 - hist2) ** 2)))
 
         summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth, y_truth, 255))
         discriminator_loss = alpha * (tf_v1.nn.tanh(fake_score))

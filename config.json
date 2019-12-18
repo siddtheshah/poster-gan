@@ -1,7 +1,7 @@
 {
-  "alpha": 0,
-  "beta": 0,
-  "gamma": 100,
+  "alpha": 1,
+  "beta": 1,
+  "gamma": 1,
   "delta": 0,
   "gan_path": "I:\\ml_storage\\gan",
   "generator_path": "I:\\ml_storage\\gan\\single_b1e25\\generator",
