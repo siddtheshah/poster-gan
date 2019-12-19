@@ -1,17 +1,18 @@
 {
-  "alpha": 1,
-  "beta": 1,
-  "gamma": 1,
-  "delta": 0,
+  "alpha": 0,
+  "beta": 0,
+  "gamma": 0,
+  "delta": 1,
   "gan_path": "I:\\ml_storage\\gan",
-  "generator_path": "I:\\ml_storage\\gan\\single_b1e25\\generator",
-  "discriminator_path": "I:\\ml_storage\\gan\\single_b1e25\\discriminator",
-  "epochs": 25,
+  "generator_path": "I:\\ml_storage\\gan\\b1e25f64\\generator",
+  "discriminator_path": "I:\\ml_storage\\gan\\b1e25f64\\discriminator",
+  "epochs": 12,
   "batch_size": 1,
   "storage_dir": "I:\\ml_storage\\summarizer",
   "poster_dir": "I:\\ml_storage\\movie_poster_images",
   "trailer_dir": "I:\\ml_storage\\movie_trailers",
   "weight_decay": 5e-3,
   "learning_rate": 2e-3,
-  "noise_dim": 1024
+  "noise_dim": 1024,
+  "use_gpu": true
 }

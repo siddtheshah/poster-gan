@@ -19,7 +19,7 @@ class DCGAN(object):
     def __init__(self, sess, input_height=108, input_width=108, crop=True,
                  batch_size=8, sample_num=32, output_height=64, output_width=64,
                  grid_height=8, grid_width=8,
-                 y_dim=None, z_dim=None, gf_dim=32, df_dim=32,
+                 y_dim=None, z_dim=None, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, data_dir=None,
                  input_fname_pattern='*.jpg', save_dir=None, results_dir=None, sample_rate=None,
                  nbr_of_layers_d=5, nbr_of_layers_g=5, use_checkpoints=True):
@@ -164,7 +164,6 @@ class DCGAN(object):
                                           self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
         self.d_sum = tf_v1.summary.merge(
             [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-        self.writer = tf_v1.summary.FileWriter("./logs", self.sess.graph)
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_num, self.z_dim))
 
@@ -236,17 +235,14 @@ class DCGAN(object):
                 # Update D network
                 _, summary_str = self.sess.run([d_optim, self.d_sum],
                                                feed_dict={self.inputs: batch_images, self.z: batch_z})
-                self.writer.add_summary(summary_str, counter)
 
                 # Update G network
                 _, summary_str = self.sess.run([g_optim, self.g_sum],
                                                feed_dict={self.z: batch_z})
-                self.writer.add_summary(summary_str, counter)
 
                 # Run g_optim twice to make sure that d_loss does not go to zero (different from paper)
                 _, summary_str = self.sess.run([g_optim, self.g_sum],
                                                feed_dict={self.z: batch_z})
-                self.writer.add_summary(summary_str, counter)
 
                 errD_fake = self.d_loss_fake.eval({self.z: batch_z})
                 errD_real = self.d_loss_real.eval({self.inputs: batch_images})

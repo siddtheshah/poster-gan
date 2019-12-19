@@ -21,7 +21,7 @@ def make_summary_example(movieId, poster_dir, trailer_dir):
     image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
     image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
     image_decoded = tf_v1.image.convert_image_dtype(image_decoded, tf_v1.float32)
-    image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
+    #image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
     poster = tf_v1.image.resize(image_decoded, [64, 64], name="poster_resize")
     # 64 x 64 image with 3 channels
 
@@ -48,7 +48,7 @@ def make_example(trailer_dir, poster_dir):
         movieId = tf_v1.Print(movieId, [movieId])
         image_string = tf_v1.read_file(poster_dir + os.sep + movieId + '.jpg')
         image_decoded = tf_v1.image.decode_jpeg(image_string, channels=3)
-        image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
+        # image_decoded = tf_v1.image.resize_image_with_crop_or_pad(image_decoded, 256, 256)
         # image_decoded = tf_v2.expand_dims(image_decoded, 0)
         # print("Poster shape debug:")
         # print(image_decoded.shape)

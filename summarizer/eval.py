@@ -104,9 +104,6 @@ def combined_loss(alpha, beta, gamma, delta, discriminator, bins):
         y_synth_full = tf_v1.image.resize(y_synth, (256, 256))
 
         y_truth = tf_v1.image.resize(y_truth, (64, 64))
-
-        # print(y_synth.shape)
-        # print(y_truth.shape)
         fake_score = discriminator(y_synth_full)["discriminator_output"]
 
         hist1 = tf_v1.numpy_function(hists, [y_synth], tf_v1.float32)
@@ -116,11 +113,11 @@ def combined_loss(alpha, beta, gamma, delta, discriminator, bins):
         # color_loss = gamma * (tf_v1.reduce_sum(((hist1 - hist2) ** 2)))
 
         summarizer_loss = beta * (1 - tf_v2.image.ssim(y_synth, y_truth, 255))
-        discriminator_loss = alpha * (tf_v1.nn.tanh(fake_score))
+        discriminator_loss = alpha * (1 - tf_v1.nn.sigmoid(fake_score))
 
         mse_loss = tf_v1.losses.mean_squared_error(y_synth, y_truth)
         nmse_loss = delta * mse_loss/(tf_v1.math.reduce_mean(y_synth) * tf_v1.math.reduce_mean(y_truth))
-        return summarizer_loss + discriminator_loss + color_loss + nmse_loss
+        return (summarizer_loss + discriminator_loss + color_loss + nmse_loss)/(alpha + beta + gamma + delta)
 
     return loss
 # Other eval metrics.
@@ -140,7 +137,8 @@ def show_training_plot(history, results_dir):
     plt.savefig(os.path.join(results_dir, "training_plot.png"))
 
 def show_poster_predict_comparison(summarizer_predict, cap, results_dir, trailer_dir, poster_dir):
-    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:5]
+    eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[15:20]
+    eval_ids = [114709, 111161, 68646, 120737, 1375666]
     print("Running Eval on ", eval_ids)
     rows = []
     for i, id in enumerate(eval_ids):
@@ -168,7 +166,42 @@ def show_poster_predict_comparison(summarizer_predict, cap, results_dir, trailer
     plt.imshow(concat)
     plt.savefig(os.path.join(results_dir, "predictions.png"))
 
-def debug_show(cap, results_dir, trailer_dir, poster_dir):
+def show_batched_poster_predict_comparison(summarizer_predict, cap, results_dir, trailer_dir, poster_dir, batch_size, override_ids=None):
+    if override_ids:
+        if len(override_ids) > batch_size:
+            print("Too many ids specified given batch size. Aborting image generation.")
+            return
+        eval_ids = override_ids + summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:batch_size - len(override_ids)]
+    else:
+        eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:batch_size]
+    print("Running Eval on ", eval_ids)
+    rows = []
+    stacked_frames_batch = []
+    posters = []
+    for i, id in enumerate(eval_ids):
+        trailer_frames, poster = summarizer.dataset.make_summary_example(str(id), poster_dir, trailer_dir)
+        stacked_frames = tf_v1.stack(trailer_frames, 0)
+        stacked_frames_batch.append(stacked_frames)
+        posters.append(poster)
+
+    batch = tf_v1.stack(stacked_frames_batch)
+
+    sm_output = summarizer_predict(batch)["output_1"]
+        # sm_output = tf_v1.random.uniform((1, 1024), minval=-.5, maxval=.5)
+
+    output = cap(sm_output)
+    y_synth = output
+    y_synth = (y_synth + 1)/2
+
+    for i in range(batch_size):
+        rows.append(np.hstack([posters[i], y_synth[i]]))
+
+    concat = np.vstack(rows) #.astype(int)
+    plt.figure()
+    plt.imshow(concat)
+    plt.savefig(os.path.join(results_dir, "predictions.png"))
+
+def debug_gan_show(cap, results_dir, trailer_dir, poster_dir):
     eval_ids = summarizer.dataset.get_useable_ids(trailer_dir, poster_dir)[:5]
     print("Running Eval on ", eval_ids)
     rows = []

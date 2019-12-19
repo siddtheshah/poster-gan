@@ -40,7 +40,7 @@ def make_gan_cap(generator_predict):
     return gan_cap
 
 class SummaryNetwork(tf_v1.keras.Model):
-    def __init__(self, weight_decay, batch_size, filters=60, z_dim=None):
+    def __init__(self, weight_decay, batch_size, filters=30, z_dim=None):
         super(SummaryNetwork, self).__init__()
         self.batch_size = batch_size
         self.z_dim = z_dim
