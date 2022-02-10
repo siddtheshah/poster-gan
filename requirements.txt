@@ -48,7 +48,7 @@ testpath==0.4.2
 torch==1.1.0
 torchvision==0.3.0
 tensorflow-gan
-tensorflow==1.15.0
+tensorflow==2.5.3
 tornado==6.0.3
 traitlets==4.3.2
 wcwidth==0.1.7
